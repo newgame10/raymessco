@@ -4,8 +4,8 @@ self.addEventListener("install", e => {
       return cache.addAll([
         "index.html",
         "manifest.json",
-        "icons/icon-192.png",
-        "icons/icon-512.png"
+        "icon-192.png",
+        "icon-512.png"
       ]);
     })
   );
@@ -16,3 +16,4 @@ self.addEventListener("fetch", e => {
     caches.match(e.request).then(resp => resp || fetch(e.request))
   );
 });
+
