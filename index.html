@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ray Mess Co</title>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#FFD600">
 
   <!-- Tailwind -->
@@ -13,27 +13,19 @@
     body { background-color: #FFD600; }
     .hidden { display: none; }
   </style>
-
-<link rel="manifest" href="manifest.json">
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js");
-  }
-</script>
-
 </head>
 <body class="flex items-center justify-center h-screen">
 
   <!-- Splash -->
   <div id="splash" class="flex flex-col items-center justify-center h-full">
-    <img src="icon-192.png" alt="Logo" class="w-32 h-32 animate-pulse">
+    <img src="./icon-192.png" alt="Logo" class="w-32 h-32 animate-pulse">
     <h1 class="text-3xl font-bold text-black mt-4">Ray Mess Co</h1>
   </div>
 
   <!-- Dashboard -->
   <div id="dashboard" class="hidden flex-col w-full p-4">
     <h1 class="text-2xl font-bold flex items-center gap-2 text-black">
-      <img src="icon-192.png" alt="Logo" class="w-8 h-8"> Ray Mess Co
+      <img src="./icon-192.png" alt="Logo" class="w-8 h-8"> Ray Mess Co
     </h1>
 
     <!-- Botón -->
@@ -71,7 +63,7 @@
     setTimeout(() => {
       document.getElementById('splash').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
-    }, 6000);
+    }, 3000);
 
     // Modal
     function openModal(){ document.getElementById('modal').classList.remove('hidden'); }
@@ -126,9 +118,11 @@
 
     // Registrar Service Worker
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
+      navigator.serviceWorker.register("./service-worker.js");
     }
   </script>
 </body>
 </html>
+
+
 
