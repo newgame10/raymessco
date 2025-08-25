@@ -1,44 +1,30 @@
-const CACHE_NAME = "ray-mess-co-v2";
-const STATIC_ASSETS = [
-  "index.html",
-  "manifest.json",
-  "icon-192.png",
-  "icon-512.png"
-];
+document.getElementById("service-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
 
-// Instalar y cachear archivos estáticos
-self.addEventListener("install", e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
-  );
-});
+  function saveData() {
+    if(editIndex !== null){
+      services[editIndex] = {...services[editIndex], ...data};
+      editIndex = null;
+    } else {
+      services.push({...data, estado:"pendiente"});
+    }
+    saveServices(); 
+    renderServices(); 
+    closeModal(); 
+    form.reset();
+  }
 
-// Activar y limpiar caches viejos
-self.addEventListener("activate", e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-});
-
-// Estrategia cache-first con cache dinámico
-self.addEventListener("fetch", e => {
-  e.respondWith(
-    caches.match(e.request).then(resp => {
-      return (
-        resp ||
-        fetch(e.request).then(fetchResp => {
-          // Cache dinámico: imágenes o recursos externos
-          if (e.request.url.startsWith("http") && e.request.destination === "image") {
-            return caches.open(CACHE_NAME).then(cache => {
-              cache.put(e.request, fetchResp.clone());
-              return fetchResp;
-            });
-          }
-          return fetchResp;
-        })
-      );
-    })
-  );
+  if(form.foto.files.length > 0){
+    const file = form.foto.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      data.foto = reader.result;
+      saveData();
+    };
+    reader.readAsDataURL(file);
+  } else {
+    saveData();
+  }
 });
