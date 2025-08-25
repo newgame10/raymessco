@@ -2,11 +2,11 @@ const CACHE_NAME = "ray-mess-co-v2";
 const STATIC_ASSETS = [
   "index.html",
   "manifest.json",
-  "icons/icon-192.png",
-  "icons/icon-512.png"
+  "icon-192.png",
+  "icon-512.png"
 ];
 
-// Instalar y cachear archivos básicos
+// Instalar y cachear archivos estáticos
 self.addEventListener("install", e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
@@ -22,18 +22,15 @@ self.addEventListener("activate", e => {
   );
 });
 
-// Estrategia de fetch (cache first + dynamic cache)
+// Estrategia cache-first con cache dinámico
 self.addEventListener("fetch", e => {
   e.respondWith(
     caches.match(e.request).then(resp => {
       return (
         resp ||
         fetch(e.request).then(fetchResp => {
-          // Si es una imagen subida o recurso externo, también se cachea
-          if (
-            e.request.url.startsWith("http") &&
-            (e.request.destination === "image" || e.request.url.includes("data:image"))
-          ) {
+          // Cache dinámico: imágenes o recursos externos
+          if (e.request.url.startsWith("http") && e.request.destination === "image") {
             return caches.open(CACHE_NAME).then(cache => {
               cache.put(e.request, fetchResp.clone());
               return fetchResp;
