@@ -19,18 +19,18 @@
   <!-- Splash -->
   <div id="splash" class="flex flex-col items-center justify-center h-full">
     <img src="icon-192.png" alt="Logo" class="w-32 h-32 animate-pulse">
-    <h1 class="text-3xl font-bold text-yellow-400 mt-4">Ray Mess Co</h1>
+    <h1 class="text-3xl font-bold text-[#CF9524] mt-4">Ray Mess Co</h1>
   </div>
 
   <!-- Dashboard -->
   <div id="dashboard" class="hidden flex-col w-full p-4">
-    <h1 class="text-2xl font-bold flex items-center gap-2 text-yellow-400">
+    <h1 class="text-2xl font-bold flex items-center gap-2 text-[#CF9524]">
       <img src="icon-192.png" alt="Logo" class="w-8 h-8"> Ray Mess Co
     </h1>
 
     <!-- Botón -->
     <button onclick="openModal()"
-      class="bg-yellow-400 text-black px-4 py-2 rounded-lg mt-4 font-bold">
+      class="bg-[#CF9524] text-black px-4 py-2 rounded-lg mt-4 font-bold">
       ➕ Registrar servicio
     </button>
 
@@ -40,20 +40,19 @@
 
   <!-- Modal -->
   <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-    <div class="bg-black border border-yellow-400 p-6 rounded-xl w-96 text-yellow-400">
+    <div class="bg-black border border-[#CF9524] p-6 rounded-xl w-96 text-[#CF9524]">
       <div class="flex justify-center">
-        <!-- Logo ahora sin carpeta "icons/" -->
         <img src="icon-192.png" alt="Logo" class="w-20 h-20 mb-2">
       </div>
       <h2 class="text-xl font-bold mb-4 text-center">Registra el servicio</h2>
       <form id="service-form" class="flex flex-col gap-3">
-        <input name="cliente" placeholder="Nombre Del Cliente" class="p-2 bg-yellow-400 text-black rounded" required>
-        <input name="recoger" placeholder="Dirección De Recogida" class="p-2 bg-yellow-400 text-black rounded" required>
-        <input name="entregar" placeholder="Dirección De Entrega" class="p-2 bg-yellow-400 text-black rounded" required>
-        <input name="telefono" placeholder="Número De Teléfono" class="p-2 bg-yellow-400 text-black rounded">
-        <input name="volumen" placeholder="Volumen (cantidad/medidas)" class="p-2 bg-yellow-400 text-black rounded">
-        <input type="file" name="foto" accept="image/*" class="p-2 bg-yellow-400 text-black rounded">
-        <textarea name="observaciones" placeholder="Observaciones" class="p-2 bg-yellow-400 text-black rounded"></textarea>
+        <input name="cliente" placeholder="Nombre Del Cliente" class="p-2 bg-[#CF9524] text-black rounded" required>
+        <input name="recoger" placeholder="Dirección De Recogida" class="p-2 bg-[#CF9524] text-black rounded" required>
+        <input name="entregar" placeholder="Dirección De Entrega" class="p-2 bg-[#CF9524] text-black rounded" required>
+        <input name="telefono" placeholder="Número De Teléfono" class="p-2 bg-[#CF9524] text-black rounded">
+        <input name="volumen" placeholder="Volumen (cantidad/medidas)" class="p-2 bg-[#CF9524] text-black rounded">
+        <input type="file" name="foto" accept="image/*" class="p-2 bg-[#CF9524] text-black rounded">
+        <textarea name="observaciones" placeholder="Observaciones" class="p-2 bg-[#CF9524] text-black rounded"></textarea>
         <!-- Botón verde -->
         <button type="submit" class="bg-green-500 text-black font-bold py-2 rounded">Register</button>
       </form>
@@ -66,7 +65,7 @@
     setTimeout(() => {
       document.getElementById('splash').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
-    }, 5000);
+    }, 3000);
 
     // Modal
     let editIndex = null;
@@ -97,7 +96,7 @@
       list.innerHTML = "";
       services.forEach((s, index) => {
         const card = document.createElement("div");
-        card.className = "bg-yellow-400 text-black p-4 rounded-xl shadow flex flex-col";
+        card.className = "bg-[#CF9524] text-black p-4 rounded-xl shadow flex flex-col";
         card.innerHTML = `
           <p><b>Cliente:</b> ${s.cliente}</p>
           <p>📞 <b>Tel:</b> ${s.telefono ? `<a href="tel:${s.telefono}" class="underline">${s.telefono}</a>` : "-"}</p>
@@ -108,7 +107,7 @@
           ${s.foto ? `<img src="${s.foto}" alt="Foto del paquete" class="mt-2 rounded-lg">` : ""}
           <p class="font-bold mt-2">Estado: ${s.estado === "entregado" ? "🟢 Entregado" : "⏳ Pendiente"}</p>
           <div class="flex gap-2 mt-4">
-            <button onclick="toggleEstado(${index})" class="flex-1 bg-black text-yellow-400 px-3 py-1 rounded">Cambiar estado</button>
+            <button onclick="toggleEstado(${index})" class="flex-1 bg-black text-[#CF9524] px-3 py-1 rounded">Cambiar estado</button>
             <button onclick="openModal(${index})" class="flex-1 bg-blue-600 text-white px-3 py-1 rounded">✏️ Editar</button>
             <button onclick="deleteService(${index})" class="flex-1 bg-red-600 text-white px-3 py-1 rounded">🗑️ Eliminar</button>
           </div>
