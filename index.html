@@ -10,8 +10,14 @@
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #000; }
+    body { background-color: #CF9524; }
     .hidden { display: none; }
+    /* Forzar color negro en placeholders */
+    input::placeholder,
+    textarea::placeholder {
+      color: #000 !important;
+      opacity: 1;
+    }
   </style>
 </head>
 <body class="flex items-center justify-center h-screen">
@@ -46,13 +52,13 @@
       </div>
       <h2 class="text-xl font-bold mb-4 text-center">Registra el servicio</h2>
       <form id="service-form" class="flex flex-col gap-3">
-        <input name="cliente" placeholder="Nombre Del Cliente" class="p-2 bg-[#CF9524] text-black rounded" required>
-        <input name="recoger" placeholder="Dirección De Recogida" class="p-2 bg-[#CF9524] text-black rounded" required>
-        <input name="entregar" placeholder="Dirección De Entrega" class="p-2 bg-[#CF9524] text-black rounded" required>
-        <input name="telefono" placeholder="Número De Teléfono" class="p-2 bg-[#CF9524] text-black rounded">
-        <input name="volumen" placeholder="Volumen (cantidad/medidas)" class="p-2 bg-[#CF9524] text-black rounded">
+        <input name="cliente" placeholder="Nombre Del Cliente" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="recoger" placeholder="Dirección De Recogida" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="entregar" placeholder="Dirección De Entrega" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="telefono" placeholder="Número De Teléfono" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
+        <input name="volumen" placeholder="Volumen (cantidad/medidas)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
         <input type="file" name="foto" accept="image/*" class="p-2 bg-[#CF9524] text-black rounded">
-        <textarea name="observaciones" placeholder="Observaciones" class="p-2 bg-[#CF9524] text-black rounded"></textarea>
+        <textarea name="observaciones" placeholder="Observaciones" class="p-2 bg-[#CF9524] text-black placeholder-black rounded"></textarea>
         <!-- Botón verde -->
         <button type="submit" class="bg-green-500 text-black font-bold py-2 rounded">Register</button>
       </form>
@@ -65,7 +71,7 @@
     setTimeout(() => {
       document.getElementById('splash').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
-    }, 5000);
+    }, 3000);
 
     // Modal
     let editIndex = null;
@@ -162,4 +168,3 @@
   </script>
 </body>
 </html>
-
