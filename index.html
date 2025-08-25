@@ -60,7 +60,7 @@
         <input name="volumen" placeholder="Volumen (cantidad/medidas)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
         <input type="file" name="foto" accept="image/*" class="p-2 bg-[#CF9524] text-black rounded">
         <textarea name="observaciones" placeholder="Observaciones" class="p-2 bg-[#CF9524] text-black placeholder-black rounded"></textarea>
-        <button type="submit" class="bg-green-500 text-black font-bold py-2 rounded">Register</button>
+        <button type="submit" class="bg-green-500 text-black font-bold py-2 rounded">Registrar</button>
       </form>
       <button onclick="closeModal()" class="mt-3 text-red-500">Cancelar</button>
     </div>
@@ -133,30 +133,35 @@
       }
     }
 
+    // 📌 Submit corregido
     document.getElementById("service-form").addEventListener("submit", async e => {
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(e.target));
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
 
-      if(e.target.foto.files[0]){
-        const file = e.target.foto.files[0];
-        const reader = new FileReader();
-        reader.onload = () => {
-          data.foto = reader.result;
-          saveData();
-        };
-        reader.readAsDataURL(file);
-      } else {
-        saveData();
-      }
-
-      function saveData(){
+      function saveData() {
         if(editIndex !== null){
           services[editIndex] = {...services[editIndex], ...data};
           editIndex = null;
         } else {
           services.push({...data, estado:"pendiente"});
         }
-        saveServices(); renderServices(); closeModal(); e.target.reset();
+        saveServices(); 
+        renderServices(); 
+        closeModal(); 
+        form.reset();
+      }
+
+      if(form.foto.files.length > 0){
+        const file = form.foto.files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          data.foto = reader.result;
+          saveData();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        saveData();
       }
     });
 
