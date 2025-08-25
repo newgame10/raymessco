@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ray Mess Co</title>
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#CF9524">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FFD600">
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #CF9524; }
+    body { background-color: #000; }
     .hidden { display: none; }
   </style>
 </head>
@@ -18,19 +18,19 @@
 
   <!-- Splash -->
   <div id="splash" class="flex flex-col items-center justify-center h-full">
-    <img src="./icon-192.png" alt="Logo" class="w-32 h-32 animate-pulse">
-    <h1 class="text-3xl font-bold text-black mt-4">Ray Mess Co</h1>
+    <img src="icons/icon-192.png" alt="Logo" class="w-32 h-32 animate-pulse">
+    <h1 class="text-3xl font-bold text-yellow-400 mt-4">Ray Mess Co</h1>
   </div>
 
   <!-- Dashboard -->
   <div id="dashboard" class="hidden flex-col w-full p-4">
-    <h1 class="text-2xl font-bold flex items-center gap-2 text-black">
-      <img src="./icon-192.png" alt="Logo" class="w-8 h-8"> Ray Mess Co
+    <h1 class="text-2xl font-bold flex items-center gap-2 text-yellow-400">
+      <img src="icons/icon-192.png" alt="Logo" class="w-8 h-8"> Ray Mess Co
     </h1>
 
     <!-- Botón -->
     <button onclick="openModal()"
-      class="bg-black text-yellow-400 px-4 py-2 rounded-lg mt-4">
+      class="bg-yellow-400 text-black px-4 py-2 rounded-lg mt-4 font-bold">
       ➕ Registrar servicio
     </button>
 
@@ -39,22 +39,23 @@
   </div>
 
   <!-- Modal -->
-  <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white p-6 rounded-xl w-96">
-      <h2 class="text-xl font-bold mb-4">Registrar servicio</h2>
-      <form id="service-form" class="flex flex-col gap-2">
-        <input name="cliente" placeholder="Cliente" class="p-2 border rounded" required>
-        <input name="telefono" placeholder="Teléfono" class="p-2 border rounded">
-        <input name="recoger" placeholder="Dirección de recogida" class="p-2 border rounded" required>
-        <input name="entregar" placeholder="Dirección de entrega" class="p-2 border rounded" required>
-        <select name="pago" class="p-2 border rounded">
-          <option value="false">No cobra</option>
-          <option value="true">Cobrar</option>
-        </select>
-        <input name="valor" placeholder="Valor en pesos colombianos" class="p-2 border rounded">
-        <button type="submit" class="bg-yellow-400 text-black py-2 rounded">Guardar</button>
+  <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+    <div class="bg-black border border-yellow-400 p-6 rounded-xl w-96 text-yellow-400">
+      <div class="flex justify-center">
+        <img src="icons/icon-192.png" alt="Logo" class="w-20 h-20 mb-2">
+      </div>
+      <h2 class="text-xl font-bold mb-4 text-center">Registra el servicio</h2>
+      <form id="service-form" class="flex flex-col gap-3">
+        <input name="cliente" placeholder="Nombre Del Cliente" class="p-2 bg-yellow-400 text-black rounded" required>
+        <input name="recoger" placeholder="Dirección De Recogida" class="p-2 bg-yellow-400 text-black rounded" required>
+        <input name="entregar" placeholder="Dirección De Entrega" class="p-2 bg-yellow-400 text-black rounded" required>
+        <input name="telefono" placeholder="Número De Teléfono" class="p-2 bg-yellow-400 text-black rounded">
+        <input name="volumen" placeholder="Volumen (cantidad/medidas)" class="p-2 bg-yellow-400 text-black rounded">
+        <input type="file" name="foto" accept="image/*" class="p-2 bg-yellow-400 text-black rounded">
+        <textarea name="observaciones" placeholder="Observaciones" class="p-2 bg-yellow-400 text-black rounded"></textarea>
+        <button type="submit" class="bg-yellow-400 text-black font-bold py-2 rounded">Register</button>
       </form>
-      <button onclick="closeModal()" class="mt-2 text-red-600">Cancelar</button>
+      <button onclick="closeModal()" class="mt-3 text-red-500">Cancelar</button>
     </div>
   </div>
 
@@ -63,10 +64,26 @@
     setTimeout(() => {
       document.getElementById('splash').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
-    }, 6000);
+    }, 3000);
 
     // Modal
-    function openModal(){ document.getElementById('modal').classList.remove('hidden'); }
+    let editIndex = null;
+    function openModal(index=null){
+      editIndex = index;
+      const form = document.getElementById("service-form");
+      form.reset();
+      if(index !== null){
+        // Rellenar datos al editar
+        const s = services[index];
+        form.cliente.value = s.cliente;
+        form.recoger.value = s.recoger;
+        form.entregar.value = s.entregar;
+        form.telefono.value = s.telefono;
+        form.volumen.value = s.volumen;
+        form.observaciones.value = s.observaciones;
+      }
+      document.getElementById('modal').classList.remove('hidden');
+    }
     function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
 
     // Servicios
@@ -82,13 +99,16 @@
         card.className = "bg-yellow-400 text-black p-4 rounded-xl shadow flex flex-col";
         card.innerHTML = `
           <p><b>Cliente:</b> ${s.cliente}</p>
-          <p>📞 <b>Tel:</b> ${s.telefono || "-"}</p>
+          <p>📞 <b>Tel:</b> ${s.telefono ? `<a href="tel:${s.telefono}" class="underline">${s.telefono}</a>` : "-"}</p>
           <p>📍 <b>Recoger:</b> <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.recoger)}" target="_blank" class="underline">${s.recoger}</a></p>
           <p>📍 <b>Entregar:</b> <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar)}" target="_blank" class="underline">${s.entregar}</a></p>
+          <p><b>Volumen:</b> ${s.volumen || "-"}</p>
+          <p><b>Observaciones:</b> ${s.observaciones || "-"}</p>
+          ${s.foto ? `<img src="${s.foto}" alt="Foto del paquete" class="mt-2 rounded-lg">` : ""}
           <p class="font-bold mt-2">Estado: ${s.estado === "entregado" ? "🟢 Entregado" : "⏳ Pendiente"}</p>
-          <p class="font-bold">Pago: ${s.pago === "true" ? `💰 ${s.valor} COP` : "No"}</p>
           <div class="flex gap-2 mt-4">
             <button onclick="toggleEstado(${index})" class="flex-1 bg-black text-yellow-400 px-3 py-1 rounded">Cambiar estado</button>
+            <button onclick="openModal(${index})" class="flex-1 bg-blue-600 text-white px-3 py-1 rounded">✏️ Editar</button>
             <button onclick="deleteService(${index})" class="flex-1 bg-red-600 text-white px-3 py-1 rounded">🗑️ Eliminar</button>
           </div>
         `;
@@ -107,24 +127,40 @@
       }
     }
 
-    document.getElementById("service-form").addEventListener("submit", e => {
+    document.getElementById("service-form").addEventListener("submit", async e => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(e.target));
-      services.push({...data, estado:"pendiente"});
-      saveServices(); renderServices(); closeModal(); e.target.reset();
+
+      // Foto en base64
+      if(e.target.foto.files[0]){
+        const file = e.target.foto.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+          data.foto = reader.result;
+          saveData();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        saveData();
+      }
+
+      function saveData(){
+        if(editIndex !== null){
+          services[editIndex] = {...services[editIndex], ...data};
+          editIndex = null;
+        } else {
+          services.push({...data, estado:"pendiente"});
+        }
+        saveServices(); renderServices(); closeModal(); e.target.reset();
+      }
     });
 
     renderServices();
 
     // Registrar Service Worker
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./service-worker.js");
+      navigator.serviceWorker.register("service-worker.js");
     }
   </script>
 </body>
 </html>
-
-
-
-
-
