@@ -1,158 +1,235 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ray Mess Co</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#CF9524">
 
-  <!-- Tailwind -->
+  <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
+    /* Fondo general */
     body { background-color: #000; }
     .hidden { display: none; }
+
+    /* Forzar placeholders negros (evita gris en varios navegadores) */
     input::placeholder,
     textarea::placeholder {
       color: #000 !important;
       opacity: 1;
     }
+
+    /* Evitar que el body haga scroll cuando el modal está abierto (opcional) */
+    body.modal-open { height: 100vh; overflow: hidden; }
   </style>
 </head>
-<body class="flex items-center justify-center h-screen">
+<body class="flex items-center justify-center">
 
-  <!-- Splash -->
-  <div id="splash" class="flex flex-col items-center justify-center h-full">
-    <img src="icon-192.png" alt="Logo" class="w-32 h-32 animate-pulse">
+  <!-- SPLASH (3s) -->
+  <div id="splash" class="flex flex-col items-center justify-center h-screen w-full">
+    <img src="icon-192.png" alt="Logo Ray Mess Co" class="w-32 h-32 animate-pulse">
     <h1 class="text-3xl font-bold text-[#CF9524] mt-4">Ray Mess Co</h1>
   </div>
 
-  <!-- Dashboard -->
+  <!-- DASHBOARD -->
   <div id="dashboard" class="hidden flex-col w-full h-screen">
 
-    <!-- Header fijo oscuro con sombra -->
-    <div class="sticky top-0 bg-black shadow-lg p-4 z-10 flex justify-between items-center border-b border-[#CF9524]">
-      <h1 class="text-2xl font-bold flex items-center gap-2 text-[#CF9524]">
+    <!-- HEADER FIJO OSCURO -->
+    <div class="sticky top-0 bg-black shadow-lg p-4 z-20 flex justify-between items-center border-b border-[#CF9524]">
+      <h1 class="text-2xl font-bold flex items-center gap-3 text-[#CF9524]">
         <img src="icon-192.png" alt="Logo" class="w-8 h-8"> Ray Mess Co
       </h1>
-      <button onclick="openModal()"
-        class="bg-[#CF9524] text-black px-4 py-2 rounded-lg font-bold shadow">
-        ➕ Registrar servicio
-      </button>
+
+      <div class="flex items-center gap-3">
+        <!-- Botón registrar -->
+        <button onclick="openModal()" class="bg-[#CF9524] text-black px-4 py-2 rounded-lg font-bold shadow">
+          ➕ Registrar servicio
+        </button>
+      </div>
     </div>
 
-    <!-- Lista scrollable -->
-    <div id="service-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 overflow-y-auto"></div>
+    <!-- LISTA: ocupa el resto y es scrollable -->
+    <div id="service-list" class="flex-1 overflow-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
   </div>
 
-  <!-- Modal -->
-  <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-start justify-center overflow-y-auto">
-    <div class="bg-black border border-[#CF9524] p-6 rounded-xl w-96 text-[#CF9524] mt-10 mb-10">
+  <!-- MODAL -->
+  <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-start justify-center overflow-y-auto z-30">
+    <div class="bg-black border border-[#CF9524] p-6 rounded-xl w-full max-w-md text-[#CF9524] mt-10 mb-10">
       <div class="flex justify-center">
         <img src="icon-192.png" alt="Logo" class="w-20 h-20 mb-2">
       </div>
       <h2 class="text-xl font-bold mb-4 text-center">Registra el servicio</h2>
+
       <form id="service-form" class="flex flex-col gap-3">
-        <input name="cliente" placeholder="Nombre Del Cliente" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="recoger" placeholder="Dirección De Recogida" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="entregar" placeholder="Dirección De Entrega" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="telefono" placeholder="Número De Teléfono" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
+        <input name="cliente" placeholder="Nombre del cliente" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="recoger" placeholder="Dirección de recogida" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="entregar" placeholder="Dirección de entrega" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="telefono" placeholder="Número de teléfono" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" inputmode="tel" pattern="[0-9+()\- ]*">
         <input name="volumen" placeholder="Volumen (cantidad/medidas)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
         <input type="file" name="foto" accept="image/*" class="p-2 bg-[#CF9524] text-black rounded">
         <textarea name="observaciones" placeholder="Observaciones" class="p-2 bg-[#CF9524] text-black placeholder-black rounded"></textarea>
-        <button type="submit" class="bg-green-500 text-black font-bold py-2 rounded">Registrar</button>
+
+        <div class="flex gap-2 mt-2">
+          <button type="submit" class="flex-1 bg-green-500 text-black font-bold py-2 rounded">Registrar</button>
+          <button type="button" onclick="closeModal()" class="flex-1 bg-red-600 text-white font-bold py-2 rounded">Cancelar</button>
+        </div>
       </form>
-      <button onclick="closeModal()" class="mt-3 text-red-500">Cancelar</button>
     </div>
   </div>
 
+  <!-- SCRIPTS -->
   <script>
-    // Splash
+    /***** Splash: mantiene 3s como acordado *****/
     setTimeout(() => {
       document.getElementById('splash').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
     }, 3000);
 
-    // Modal
-    let editIndex = null;
-    function openModal(index=null){
-      editIndex = index;
-      const form = document.getElementById("service-form");
-      form.reset();
-      if(index !== null){
-        const s = services[index];
-        form.cliente.value = s.cliente;
-        form.recoger.value = s.recoger;
-        form.entregar.value = s.entregar;
-        form.telefono.value = s.telefono;
-        form.volumen.value = s.volumen;
-        form.observaciones.value = s.observaciones;
-      }
-      document.getElementById('modal').classList.remove('hidden');
-    }
-    function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
-
-    // Servicios
+    /***** Datos y utilidades *****/
     let services = JSON.parse(localStorage.getItem("services") || "[]");
+    let editIndex = null;
 
-    function saveServices(){ localStorage.setItem("services", JSON.stringify(services)); }
+    function saveServices() {
+      localStorage.setItem("services", JSON.stringify(services));
+    }
 
-    function renderServices(){
-      const list = document.getElementById("service-list");
+    function openModal(index = null) {
+      editIndex = index;
+      const modal = document.getElementById('modal');
+      const form = document.getElementById('service-form');
+      form.reset();
+
+      // si es editar, precargar datos (foto no se precarga en input file)
+      if (index !== null) {
+        const s = services[index];
+        form.cliente.value = s.cliente || "";
+        form.recoger.value = s.recoger || "";
+        form.entregar.value = s.entregar || "";
+        form.telefono.value = s.telefono || "";
+        form.volumen.value = s.volumen || "";
+        form.observaciones.value = s.observaciones || "";
+      }
+
+      modal.classList.remove('hidden');
+      // bloquear scroll de body para UX (opcional)
+      document.body.classList.add('modal-open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.body.classList.remove('modal-open');
+      editIndex = null;
+    }
+
+    /***** Renderizado de tarjetas *****/
+    function renderServices() {
+      const list = document.getElementById('service-list');
       list.innerHTML = "";
+
+      if (!services || services.length === 0) {
+        list.innerHTML = `<div class="col-span-1 md:col-span-2 text-center text-[#CF9524]">No hay servicios registrados.</div>`;
+        return;
+      }
+
       services.forEach((s, index) => {
-        const card = document.createElement("div");
+        const card = document.createElement('div');
         card.className = "bg-[#CF9524] text-black p-4 rounded-xl shadow flex flex-col";
+
+        // Formatea texto seguro
+        const cliente = s.cliente || "-";
+        const telefono = s.telefono || "";
+        const recoger = s.recoger || "-";
+        const entregar = s.entregar || "-";
+        const volumen = s.volumen || "-";
+        const observaciones = s.observaciones || "-";
+        const foto = s.foto || "";
+
         card.innerHTML = `
-          <p><b>Cliente:</b> ${s.cliente}</p>
-          <p>📞 <b>Tel:</b> ${s.telefono ? `<a href="tel:${s.telefono}" class="underline">${s.telefono}</a>` : "-"}</p>
-          <p>📍 <b>Recoger:</b> <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.recoger)}" target="_blank" class="underline">${s.recoger}</a></p>
-          <p>📍 <b>Entregar:</b> <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar)}" target="_blank" class="underline">${s.entregar}</a></p>
-          <p><b>Volumen:</b> ${s.volumen || "-"}</p>
-          <p><b>Observaciones:</b> ${s.observaciones || "-"}</p>
-          ${s.foto ? `<img src="${s.foto}" alt="Foto del paquete" class="mt-2 rounded-lg max-h-48 object-contain mx-auto">` : ""}
-          <p class="font-bold mt-2">Estado: ${s.estado === "entregado" ? "🟢 Entregado" : "⏳ Pendiente"}</p>
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="font-bold">${escapeHtml(cliente)}</p>
+              <p class="text-sm mt-1">📍 <span class="font-semibold">Recoger:</span> <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(recoger)}" target="_blank" class="underline">${escapeHtml(recoger)}</a></p>
+              <p class="text-sm">📍 <span class="font-semibold">Entregar:</span> <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entregar)}" target="_blank" class="underline">${escapeHtml(entregar)}</a></p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm">📞 <a href="tel:${encodeURIComponent(telefono)}" class="underline">${escapeHtml(telefono) || '-'}</a></p>
+              <p class="text-sm mt-2 font-semibold">${s.estado === 'entregado' ? '🟢 Entregado' : '⏳ Pendiente'}</p>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <p class="text-sm"><strong>Volumen:</strong> ${escapeHtml(volumen)}</p>
+            <p class="text-sm"><strong>Observaciones:</strong> ${escapeHtml(observaciones)}</p>
+          </div>
+
+          ${ foto ? `<div class="mt-3"><img src="${foto}" alt="Foto del paquete" class="rounded-lg max-h-48 w-auto object-contain mx-auto"></div>` : "" }
+
           <div class="flex gap-2 mt-4">
-            <button onclick="toggleEstado(${index})" class="flex-1 bg-black text-[#CF9524] px-3 py-1 rounded">Cambiar estado</button>
-            <button onclick="openModal(${index})" class="flex-1 bg-blue-600 text-white px-3 py-1 rounded">✏️ Editar</button>
-            <button onclick="deleteService(${index})" class="flex-1 bg-red-600 text-white px-3 py-1 rounded">🗑️ Eliminar</button>
+            <button onclick="toggleEstado(${index})" class="flex-1 bg-black text-[#CF9524] px-3 py-2 rounded">Cambiar estado</button>
+            <button onclick="openModal(${index})" class="flex-1 bg-blue-600 text-white px-3 py-2 rounded">✏️ Editar</button>
+            <button onclick="deleteService(${index})" class="flex-1 bg-red-600 text-white px-3 py-2 rounded">🗑️ Eliminar</button>
           </div>
         `;
+
         list.appendChild(card);
       });
     }
 
-    function toggleEstado(i){
-      services[i].estado = services[i].estado === "entregado" ? "pendiente" : "entregado";
-      saveServices(); renderServices();
+    function escapeHtml(text) {
+      if (!text && text !== 0) return '';
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
-    function deleteService(i){
-      if(confirm("¿Eliminar servicio?")){
-        services.splice(i,1); saveServices(); renderServices();
+    function toggleEstado(i) {
+      services[i].estado = services[i].estado === "entregado" ? "pendiente" : "entregado";
+      saveServices();
+      renderServices();
+    }
+
+    function deleteService(i) {
+      if (confirm("¿Eliminar servicio?")) {
+        services.splice(i, 1);
+        saveServices();
+        renderServices();
       }
     }
 
-    // 📌 Submit corregido
+    /***** Form submit: espera correctamente la carga de imagen (onloadend) *****/
     document.getElementById("service-form").addEventListener("submit", async e => {
       e.preventDefault();
       const form = e.target;
       const data = Object.fromEntries(new FormData(form));
 
       function saveData() {
-        if(editIndex !== null){
-          services[editIndex] = {...services[editIndex], ...data};
+        // asegurar campos mínimos
+        if (!data.cliente || !data.recoger || !data.entregar) {
+          alert("Por favor completa cliente, dirección de recogida y dirección de entrega.");
+          return;
+        }
+
+        if (editIndex !== null) {
+          services[editIndex] = { ...services[editIndex], ...data };
           editIndex = null;
         } else {
-          services.push({...data, estado:"pendiente"});
+          services.push({ ...data, estado: "pendiente" });
         }
-        saveServices(); 
-        renderServices(); 
-        closeModal(); 
+
+        saveServices();
+        renderServices();
+        closeModal();
         form.reset();
       }
 
-      if(form.foto.files.length > 0){
+      // Si se seleccionó archivo, leer antes de guardar
+      if (form.foto && form.foto.files && form.foto.files.length > 0) {
         const file = form.foto.files[0];
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -165,11 +242,30 @@
       }
     });
 
+    // Render inicial
     renderServices();
 
+    /***** Registrar service worker (si existe) *****/
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
+      navigator.serviceWorker.register("service-worker.js").catch(err => {
+        console.warn("ServiceWorker registration failed:", err);
+      });
     }
+
+    /***** Pequeña mejora UX: cerrar modal con Escape y click fuera *****/
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('modal');
+        if (!modal.classList.contains('hidden')) closeModal();
+      }
+    });
+
+    // click fuera del panel del modal lo cierra
+    document.getElementById('modal').addEventListener('click', (ev) => {
+      const container = ev.currentTarget.querySelector('div > div');
+      // si el click es en el overlay (no en el panel interior)
+      if (ev.target === ev.currentTarget) closeModal();
+    });
   </script>
 </body>
 </html>
