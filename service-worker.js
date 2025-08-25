@@ -30,14 +30,14 @@ self.addEventListener("activate", event => {
   );
 });
 
-// Escuchar mensajes (útil para skipWaiting desde la página)
+// Escuchar mensajes (SKIP_WAITING)
 self.addEventListener("message", event => {
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
 });
 
-// Fetch: cache-first para assets, dynamic cache para imágenes y fallback para navegación offline
+// Fetch: cache-first para assets, dynamic cache para imágenes y fallback razonable
 self.addEventListener("fetch", event => {
   const req = event.request;
 
@@ -66,7 +66,6 @@ self.addEventListener("fetch", event => {
         if (req.destination === "image" || contentType.includes("image")) {
           const respClone = fetchResp.clone();
           caches.open(CACHE_NAME).then(cache => {
-            // Intentamos cachear, pero no bloqueamos la respuesta
             cache.put(req, respClone).catch(() => {/* noop */});
           });
         }
