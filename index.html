@@ -2,10 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ray Mess Co</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Ray Mess Co - Mensajería PWA</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#CF9524">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RayMess">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #000; }
@@ -14,22 +18,25 @@
     #dashboard.visible { display: flex; }
     input::placeholder, textarea::placeholder { color: #000 !important; opacity: 1; }
     body.modal-open { height: 100vh; overflow: hidden; }
+    /* mejorar scroll en modales */
+    .overflow-auto { -webkit-overflow-scrolling: touch; }
   </style>
 </head>
 <body class="flex items-center justify-center">
 
-  <!-- SPLASH -->
-  <div id="splash" class="flex flex-col items-center justify-center h-screen w-full">
+  <!-- SPLASH PERSONALIZADO (se oculta tras carga) -->
+  <div id="splash" class="flex flex-col items-center justify-center h-screen w-full bg-black">
     <img src="icon-192.png" alt="Logo Ray Mess Co" class="w-32 h-32 animate-pulse">
     <h1 class="text-3xl font-bold text-[#CF9524] mt-4">Ray Mess Co</h1>
+    <p class="text-[#CF9524]/70 mt-2 text-sm">Cargando mensajería...</p>
   </div>
 
-  <!-- DASHBOARD -->
+  <!-- DASHBOARD PRINCIPAL -->
   <div id="dashboard" class="w-full h-screen">
 
-    <!-- HEADER -->
+    <!-- HEADER FIJO -->
     <div class="sticky top-0 bg-black shadow-lg p-4 z-20 flex justify-between items-center border-b border-[#CF9524]">
-      <button onclick="toggleSidebar()" class="text-[#CF9524] text-2xl font-bold">☰</button>
+      <button onclick="toggleSidebar()" class="text-[#CF9524] text-2xl font-bold" aria-label="Menú">☰</button>
       <h1 class="text-2xl font-bold flex items-center gap-3 text-[#CF9524]">
         <img src="icon-192.png" alt="Logo" class="w-8 h-8"> Ray Mess Co
       </h1>
@@ -38,22 +45,25 @@
       </button>
     </div>
 
-    <!-- SIDEBAR -->
-    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-[#111] text-[#CF9524] transform -translate-x-full transition-transform duration-300 z-40">
-      <div class="p-4 border-b border-[#CF9524] font-bold text-xl">Menú</div>
+    <!-- SIDEBAR LATERAL -->
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-[#111] text-[#CF9524] transform -translate-x-full transition-transform duration-300 z-40 shadow-xl">
+      <div class="p-4 border-b border-[#CF9524] font-bold text-xl flex justify-between items-center">
+        <span>Menú</span>
+        <button onclick="toggleSidebar()" class="text-xl">✕</button>
+      </div>
       <ul class="flex flex-col p-4 gap-4">
-        <li><button onclick="showSection('services')" class="w-full text-left">📋 Ver servicios</button></li>
-        <li><button onclick="openModal()" class="w-full text-left">➕ Registrar servicio</button></li>
-        <li><button onclick="showSection('costos')" class="w-full text-left">💰 Costos por empresa</button></li>
+        <li><button onclick="showSection('services')" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">📋 Ver servicios</button></li>
+        <li><button onclick="openModal(); toggleSidebar();" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">➕ Registrar servicio</button></li>
+        <li><button onclick="showSection('costos')" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">💰 Costos por empresa</button></li>
       </ul>
     </div>
 
-    <!-- CONTENIDO -->
+    <!-- CONTENIDO DINÁMICO -->
     <div id="content" class="flex-1 overflow-auto p-4">
 
-      <!-- FILTROS -->
-      <div class="mb-4 flex gap-2 text-[#CF9524]" id="filters">
-        <button onclick="setFilter('all')" class="px-3 py-1 border border-[#CF9524] rounded">Todos</button>
+      <!-- FILTROS (solo visible en servicios) -->
+      <div class="mb-4 flex gap-2 text-[#CF9524] flex-wrap" id="filters">
+        <button onclick="setFilter('all')" class="px-3 py-1 border border-[#CF9524] rounded bg-black">Todos</button>
         <button onclick="setFilter('pendiente')" class="px-3 py-1 border border-[#CF9524] rounded">Pendientes</button>
         <button onclick="setFilter('entregado')" class="px-3 py-1 border border-[#CF9524] rounded">Entregados</button>
       </div>
@@ -61,82 +71,100 @@
       <!-- LISTA DE SERVICIOS -->
       <div id="services-section" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-      <!-- RESUMEN DE COSTOS -->
+      <!-- TABLA DE COSTOS POR EMPRESA -->
       <div id="costos-section" class="hidden">
-        <h2 class="text-xl font-bold text-[#CF9524] mb-4">Costos por empresa</h2>
-        <table class="w-full text-[#CF9524] border border-[#CF9524]">
-          <thead class="bg-[#222]">
-            <tr>
-              <th class="border border-[#CF9524] p-2">Empresa</th>
-              <th class="border border-[#CF9524] p-2">Servicios</th>
-              <th class="border border-[#CF9524] p-2">Total (COP)</th>
-            </tr>
-          </thead>
-          <tbody id="costos-body"></tbody>
-        </table>
+        <h2 class="text-xl font-bold text-[#CF9524] mb-4">💰 Costos acumulados por empresa</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[#CF9524] border border-[#CF9524]">
+            <thead class="bg-[#222]">
+              <tr>
+                <th class="border border-[#CF9524] p-2">Empresa</th>
+                <th class="border border-[#CF9524] p-2">Servicios</th>
+                <th class="border border-[#CF9524] p-2">Total (COP)</th>
+              </tr>
+            </thead>
+            <tbody id="costos-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL -->
-  <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-start justify-center overflow-y-auto z-50">
-    <div class="bg-black border border-[#CF9524] p-6 rounded-xl w-full max-w-md text-[#CF9524] mt-10 mb-10">
+  <!-- MODAL PARA REGISTRAR / EDITAR SERVICIO -->
+  <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-start justify-center overflow-y-auto z-50 p-4">
+    <div class="bg-black border-2 border-[#CF9524] p-5 rounded-xl w-full max-w-md text-[#CF9524] my-8 shadow-2xl">
       <div class="flex justify-center">
-        <img src="icon-192.png" alt="Logo" class="w-20 h-20 mb-2">
+        <img src="icon-192.png" alt="Logo" class="w-16 h-16 mb-2">
       </div>
-      <h2 class="text-xl font-bold mb-4 text-center">Registra el servicio</h2>
+      <h2 class="text-xl font-bold mb-4 text-center">📦 Registrar / Editar servicio</h2>
 
       <form id="service-form" class="flex flex-col gap-3">
-        <input name="empresa" placeholder="Empresa que solicita" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="cliente" placeholder="Nombre del cliente" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="contacto" placeholder="Nombre de contacto receptor" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="recoger" placeholder="Dirección de recogida" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="entregar" placeholder="Dirección de entrega" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="telefono" placeholder="Número de teléfono" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" inputmode="tel" pattern="[0-9+()\\- ]*">
-        <input name="volumen" placeholder="Volumen (cantidad/medidas)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
-        <input type="number" name="costo" placeholder="Costo del servicio" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" min="0">
+        <input name="empresa" placeholder="Empresa que solicita *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="cliente" placeholder="Nombre del cliente *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="contacto" placeholder="Contacto receptor (nombre) *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="recoger" placeholder="Dirección de recogida *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="entregar" placeholder="Dirección de entrega *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
+        <input name="telefono" placeholder="Teléfono de contacto" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" inputmode="tel">
+        <input name="volumen" placeholder="Volumen (ej: 2 cajas / 50x40cm)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
+        <input type="number" name="costo" placeholder="Costo del servicio (COP)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" step="1000" min="0">
         <input type="file" name="foto" accept="image/*" class="p-2 bg-[#CF9524] text-black rounded">
-        <textarea name="observaciones" placeholder="Observaciones" class="p-2 bg-[#CF9524] text-black placeholder-black rounded overflow-y-auto resize-y" style="max-height: 120px; min-height: 60px;"></textarea>
-
-        <div class="flex gap-2 mt-2">
-          <button type="submit" class="flex-1 bg-green-500 text-black font-bold py-2 rounded">Registrar</button>
-          <button type="button" onclick="closeModal()" class="flex-1 bg-red-600 text-white font-bold py-2 rounded">Cancelar</button>
+        <textarea name="observaciones" placeholder="Observaciones (ej: frágil, horario especial)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded resize-y" style="max-height: 120px; min-height: 60px;"></textarea>
+        
+        <div class="flex gap-2 mt-3">
+          <button type="submit" class="flex-1 bg-green-600 text-white font-bold py-2 rounded shadow">✅ Guardar</button>
+          <button type="button" onclick="closeModal()" class="flex-1 bg-red-700 text-white font-bold py-2 rounded shadow">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    // Splash → Dashboard
-    setTimeout(() => {
-      document.getElementById('splash').classList.add('hidden');
-      document.getElementById('dashboard').classList.add('visible');
-    }, 3000);
-
+    // -------- INICIALIZACIÓN Y DATOS ----------
     let services = JSON.parse(localStorage.getItem("services") || "[]");
     let editIndex = null;
     let currentFilter = "all";
 
-    function saveServices() { localStorage.setItem("services", JSON.stringify(services)); }
+    function saveServices() { 
+      localStorage.setItem("services", JSON.stringify(services)); 
+    }
 
+    // Splash -> Dashboard después de cargar (simula carga)
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash');
+        const dashboard = document.getElementById('dashboard');
+        if(splash && dashboard) {
+          splash.classList.add('hidden');
+          dashboard.classList.add('visible');
+        }
+      }, 1800); // más rápido, buena experiencia
+    });
+
+    // SIDEBAR
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       sidebar.classList.toggle('-translate-x-full');
     }
 
+    // Cambiar sección (servicios / costos)
     function showSection(section) {
-      document.getElementById("services-section").classList.add("hidden");
-      document.getElementById("filters").classList.add("hidden");
-      document.getElementById("costos-section").classList.add("hidden");
-
+      const servicesDiv = document.getElementById("services-section");
+      const filtersDiv = document.getElementById("filters");
+      const costosDiv = document.getElementById("costos-section");
+      
+      servicesDiv.classList.add("hidden");
+      filtersDiv.classList.add("hidden");
+      costosDiv.classList.add("hidden");
+      
       if (section === "services") {
-        document.getElementById("filters").classList.remove("hidden");
-        document.getElementById("services-section").classList.remove("hidden");
+        filtersDiv.classList.remove("hidden");
+        servicesDiv.classList.remove("hidden");
+        renderServices();  // refrescar
       } else if (section === "costos") {
-        document.getElementById("costos-section").classList.remove("hidden");
+        costosDiv.classList.remove("hidden");
         renderCostos();
       }
-      toggleSidebar();
+      toggleSidebar(); // cierra sidebar después de navegar
     }
 
     function setFilter(filter) {
@@ -144,12 +172,14 @@
       renderServices();
     }
 
+    // ABRIR MODAL (crear o editar)
     function openModal(index = null) {
       editIndex = index;
       const modal = document.getElementById('modal');
       const form = document.getElementById('service-form');
       form.reset();
-      if (index !== null) {
+      
+      if (index !== null && services[index]) {
         const s = services[index];
         form.empresa.value = s.empresa || "";
         form.cliente.value = s.cliente || "";
@@ -160,6 +190,7 @@
         form.volumen.value = s.volumen || "";
         form.costo.value = s.costo || "";
         form.observaciones.value = s.observaciones || "";
+        // la foto no se precarga por seguridad, pero se mantiene la existente al editar
       }
       modal.classList.remove('hidden');
       document.body.classList.add('modal-open');
@@ -171,72 +202,7 @@
       editIndex = null;
     }
 
-    function renderServices() {
-      const list = document.getElementById('services-section');
-      list.innerHTML = "";
-      if (!services || services.length === 0) {
-        list.innerHTML = `<div class="col-span-1 md:col-span-2 text-center text-[#CF9524]">No hay servicios registrados.</div>`;
-        return;
-      }
-      services.forEach((s, index) => {
-        if (currentFilter !== "all" && s.estado !== currentFilter) return;
-
-        const card = document.createElement('div');
-        card.className = "bg-[#CF9524] text-black p-4 rounded-xl shadow flex flex-col";
-        card.innerHTML = `
-          <div>
-            <p class="font-bold">${escapeHtml(s.empresa || "-")}</p>
-            <p class="text-sm">Cliente: ${escapeHtml(s.cliente || "-")}</p>
-            <p class="text-sm">Contacto receptor: ${escapeHtml(s.contacto || "-")}</p>
-            <p class="text-sm">📞 <a href="tel:${encodeURIComponent(s.telefono || '')}" class="underline">${escapeHtml(s.telefono || '-')}</a></p>
-            <p class="text-sm">📍 Recoger: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.recoger || '')}" target="_blank" class="underline">${escapeHtml(s.recoger || "-")}</a></p>
-            <p class="text-sm">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar || '')}" target="_blank" class="underline">${escapeHtml(s.entregar || "-")}</a></p>
-            <p class="text-sm"><strong>Volumen:</strong> ${escapeHtml(s.volumen || "-")}</p>
-            <p class="text-sm"><strong>Costo:</strong> $ ${formatNumber(s.costo || 0)}</p>
-            <p class="text-sm"><strong>Observaciones:</strong> ${escapeHtml(s.observaciones || "-")}</p>
-            <p class="mt-2"><strong>Estado:</strong>
-              <span class="${s.estado === 'entregado' ? 'text-green-700' : 'text-red-700'}">
-                ${s.estado || "pendiente"}
-              </span>
-            </p>
-          </div>
-          ${ s.foto ? `<div class="mt-3"><img src="${s.foto}" alt="Foto del paquete" class="rounded-lg max-h-48 w-auto object-contain mx-auto"></div>` : "" }
-          <div class="flex gap-2 mt-4">
-            <button onclick="toggleEstado(${index})" class="flex-1 bg-black text-[#CF9524] px-3 py-2 rounded">Cambiar estado</button>
-            <button onclick="openModal(${index})" class="flex-1 bg-blue-600 text-white px-3 py-2 rounded">✏️ Editar</button>
-            <button onclick="deleteService(${index})" class="flex-1 bg-red-600 text-white px-3 py-2 rounded">🗑️ Eliminar</button>
-          </div>
-        `;
-        list.appendChild(card);
-      });
-    }
-
-    function renderCostos() {
-      const tbody = document.getElementById("costos-body");
-      tbody.innerHTML = "";
-      const totals = {};
-
-      services.forEach(s => {
-        const empresa = s.empresa || "Sin empresa";
-        const costo = parseFloat(s.costo) || 0;
-        if (!totals[empresa]) {
-          totals[empresa] = { cantidad: 0, total: 0 };
-        }
-        totals[empresa].cantidad += 1;
-        totals[empresa].total += costo;
-      });
-
-      for (let empresa in totals) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td class="border border-[#CF9524] p-2">${escapeHtml(empresa)}</td>
-          <td class="border border-[#CF9524] p-2 text-center">${totals[empresa].cantidad}</td>
-          <td class="border border-[#CF9524] p-2">$ ${formatNumber(totals[empresa].total)}</td>
-        `;
-        tbody.appendChild(tr);
-      }
-    }
-
+    // ESCAPE HTML
     function escapeHtml(text) {
       if (!text && text !== 0) return '';
       return String(text).replace(/&/g, "&amp;")
@@ -245,57 +211,212 @@
                          .replace(/"/g, "&quot;")
                          .replace(/'/g, "&#039;");
     }
-
+    
     function formatNumber(num) {
       return new Intl.NumberFormat("es-CO").format(num);
     }
 
+    // RENDER SERVICIOS con filtros + botones de acción
+    function renderServices() {
+      const container = document.getElementById('services-section');
+      if (!container) return;
+      container.innerHTML = "";
+      
+      if (!services.length) {
+        container.innerHTML = `<div class="col-span-1 md:col-span-2 text-center text-[#CF9524] bg-black/40 p-8 rounded-2xl">📭 No hay servicios registrados. Presiona "Registrar" para comenzar.</div>`;
+        return;
+      }
+      
+      let filtered = services.filter((s, idx) => {
+        if (currentFilter === "all") return true;
+        return s.estado === currentFilter;
+      });
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-1 md:col-span-2 text-center text-[#CF9524] p-6">⚠️ No hay servicios con estado "${currentFilter}".</div>`;
+        return;
+      }
+      
+      filtered.forEach((s, idx) => {
+        // índice real en el array original para acciones
+        const realIndex = services.findIndex(serv => serv === s);
+        const card = document.createElement('div');
+        card.className = "bg-[#CF9524] text-black p-4 rounded-xl shadow-lg flex flex-col transition hover:scale-[1.01] duration-200";
+        card.innerHTML = `
+          <div>
+            <p class="font-bold text-lg">🏢 ${escapeHtml(s.empresa || "-")}</p>
+            <p class="text-sm mt-1">👤 Cliente: ${escapeHtml(s.cliente || "-")}</p>
+            <p class="text-sm">📞 Contacto receptor: ${escapeHtml(s.contacto || "-")}</p>
+            <p class="text-sm">📱 Teléfono: ${s.telefono ? `<a href="tel:${encodeURIComponent(s.telefono)}" class="underline font-medium">${escapeHtml(s.telefono)}</a>` : '-'}</p>
+            <p class="text-sm">📍 Recoger: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.recoger || '')}" target="_blank" class="underline text-blue-900">${escapeHtml(s.recoger || "-")}</a></p>
+            <p class="text-sm">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar || '')}" target="_blank" class="underline text-blue-900">${escapeHtml(s.entregar || "-")}</a></p>
+            <p class="text-sm">📦 Volumen: ${escapeHtml(s.volumen || "-")}</p>
+            <p class="text-sm font-semibold">💰 Costo: $ ${formatNumber(s.costo || 0)}</p>
+            <p class="text-sm">📝 Observaciones: ${escapeHtml(s.observaciones || "Ninguna")}</p>
+            <div class="mt-2 flex items-center gap-2">
+              <span class="font-bold">Estado:</span>
+              <span class="px-2 py-0.5 rounded-full text-xs font-bold ${s.estado === 'entregado' ? 'bg-green-800 text-white' : 'bg-yellow-700 text-white'}">
+                ${s.estado === 'entregado' ? '✅ ENTREGADO' : '⏳ PENDIENTE'}
+              </span>
+            </div>
+          </div>
+          ${ s.foto ? `<div class="mt-3"><img src="${s.foto}" alt="Foto del paquete" class="rounded-lg max-h-48 w-auto object-contain mx-auto border border-black/30"></div>` : "" }
+          <div class="flex gap-2 mt-4 flex-wrap">
+            <button onclick="toggleEstado(${realIndex})" class="flex-1 bg-black text-[#CF9524] px-3 py-2 rounded text-sm font-bold">🔄 Cambiar estado</button>
+            <button onclick="openModal(${realIndex})" class="flex-1 bg-blue-700 text-white px-3 py-2 rounded text-sm font-bold">✏️ Editar</button>
+            <button onclick="deleteService(${realIndex})" class="flex-1 bg-red-700 text-white px-3 py-2 rounded text-sm font-bold">🗑️ Eliminar</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // COSTOS POR EMPRESA
+    function renderCostos() {
+      const tbody = document.getElementById("costos-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      const totals = {};
+      
+      services.forEach(s => {
+        const empresa = s.empresa ? s.empresa.trim() : "Empresa sin nombre";
+        const costo = parseFloat(s.costo) || 0;
+        if (!totals[empresa]) {
+          totals[empresa] = { cantidad: 0, total: 0 };
+        }
+        totals[empresa].cantidad += 1;
+        totals[empresa].total += costo;
+      });
+      
+      if (Object.keys(totals).length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-[#CF9524]">No hay datos de costos aún</td></tr>`;
+        return;
+      }
+      
+      for (let empresa in totals) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="border border-[#CF9524] p-2 font-semibold">${escapeHtml(empresa)}</td>
+          <td class="border border-[#CF9524] p-2 text-center">${totals[empresa].cantidad}</td>
+          <td class="border border-[#CF9524] p-2">$ ${formatNumber(totals[empresa].total)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    // TOGGLE ESTADO
     function toggleEstado(i) {
+      if (!services[i]) return;
       services[i].estado = services[i].estado === "entregado" ? "pendiente" : "entregado";
-      saveServices(); renderServices();
+      saveServices();
+      renderServices();
+      // si la sección de costos está visible, actualizar por si cambiaron montos (aunque no afecta costo)
+      if (!document.getElementById("costos-section").classList.contains("hidden")) {
+        renderCostos();
+      }
     }
 
     function deleteService(i) {
-      if (confirm("¿Eliminar servicio?")) {
+      if (confirm("❌ ¿Eliminar este servicio permanentemente?")) {
         services.splice(i, 1);
-        saveServices(); renderServices();
+        saveServices();
+        renderServices();
+        if (!document.getElementById("costos-section").classList.contains("hidden")) {
+          renderCostos();
+        }
+        if (services.length === 0 && currentFilter !== "all") {
+          renderServices(); // refrescar mensaje vacío
+        }
       }
     }
 
-    document.getElementById("service-form").addEventListener("submit", async e => {
+    // FORMULARIO: registrar / editar con soporte para imagen Base64
+    document.getElementById("service-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const form = e.target;
-      const data = Object.fromEntries(new FormData(form));
-      function saveData() {
-        if (!data.empresa || !data.cliente || !data.contacto || !data.recoger || !data.entregar) {
-          alert("Por favor completa todos los campos obligatorios.");
-          return;
-        }
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Validaciones obligatorias
+      if (!data.empresa || !data.cliente || !data.contacto || !data.recoger || !data.entregar) {
+        alert("⚠️ Por favor completa todos los campos obligatorios (*)");
+        return;
+      }
+      
+      const processSave = (fotoBase64 = null) => {
+        const newService = {
+          empresa: data.empresa.trim(),
+          cliente: data.cliente.trim(),
+          contacto: data.contacto.trim(),
+          recoger: data.recoger.trim(),
+          entregar: data.entregar.trim(),
+          telefono: data.telefono || "",
+          volumen: data.volumen || "",
+          costo: parseFloat(data.costo) || 0,
+          observaciones: data.observaciones || "",
+          foto: fotoBase64 || (editIndex !== null ? services[editIndex]?.foto : null),
+          estado: (editIndex !== null && services[editIndex]?.estado) ? services[editIndex].estado : "pendiente"
+        };
+        
         if (editIndex !== null) {
-          services[editIndex] = { ...services[editIndex], ...data };
+          services[editIndex] = { ...services[editIndex], ...newService };
           editIndex = null;
         } else {
-          services.push({ ...data, estado: "pendiente" });
+          services.push(newService);
         }
-        saveServices(); renderServices(); closeModal(); form.reset();
-      }
-      if (form.foto && form.foto.files.length > 0) {
+        saveServices();
+        renderServices();
+        closeModal();
+        form.reset();
+        // si costos visible, actualizar
+        if (!document.getElementById("costos-section").classList.contains("hidden")) {
+          renderCostos();
+        }
+      };
+      
+      const fotoFile = form.foto.files[0];
+      if (fotoFile) {
         const reader = new FileReader();
-        reader.onloadend = () => { data.foto = reader.result; saveData(); };
-        reader.readAsDataURL(form.foto.files[0]);
-      } else { saveData(); }
+        reader.onloadend = () => {
+          processSave(reader.result);
+        };
+        reader.onerror = () => {
+          alert("Error al leer la imagen, se guardará sin foto");
+          processSave(null);
+        };
+        reader.readAsDataURL(fotoFile);
+      } else {
+        processSave(null);
+      }
     });
 
-    renderServices();
-
+    // Cerrar modal al hacer clic fuera (backdrop)
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal')) {
+        closeModal();
+      }
+    });
+    
+    // Cerrar sidebar si se hace clic fuera (opcional)
+    document.addEventListener('click', (e) => {
+      const sidebar = document.getElementById('sidebar');
+      const menuBtn = e.target.closest('button')?.innerText === '☰' || e.target.closest('button')?.getAttribute('onclick')?.includes('toggleSidebar');
+      if (sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+        toggleSidebar();
+      }
+    });
+    
+    // Registrar Service Worker para PWA offline
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
-          .then(reg => console.log('Service Worker registrado correctamente'))
-          .catch(err => console.log('Error al registrar Service Worker', err));
+          .then(reg => console.log('✅ Service Worker registrado con alcance:', reg.scope))
+          .catch(err => console.error('❌ Error al registrar SW:', err));
       });
     }
+    
+    // Render inicial
+    renderServices();
   </script>
 </body>
 </html>
-
