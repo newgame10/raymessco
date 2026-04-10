@@ -1,5 +1,5 @@
-const CACHE_NAME = 'raymessco-v1';
-const ASSETS = [
+const CACHE_NAME = 'raymessco-v2';
+const PRECACHE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
@@ -7,50 +7,69 @@ const ASSETS = [
   './icon-512.png'
 ];
 
-// Instalar y cachear recursos
+// ── INSTALL: pre-cachear todos los assets ──────────────────────────────────
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(PRECACHE_ASSETS))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Activar y limpiar cachés viejas
+// ── ACTIVATE: limpiar cachés viejas ───────────────────────────────────────
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
   );
-  e.waitUntil(self.clients.claim());
 });
 
-// Estrategia: Network first, fallback a caché (offline support)
+// ── FETCH: Cache First para assets, Network First para navegación ──────────
 self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+
+  // Cache First: iconos, imágenes, manifest
+  if (
+    e.request.destination === 'image' ||
+    url.pathname.endsWith('manifest.json')
+  ) {
+    e.respondWith(
+      caches.match(e.request).then(cached => cached || fetch(e.request))
+    );
+    return;
+  }
+
+  // Network First con fallback a caché (HTML y demás)
   e.respondWith(
     fetch(e.request)
       .then(response => {
-        // Guardar copia en caché si es una respuesta válida
-        if (response && response.status === 200 && response.type === 'basic') {
+        if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
         }
         return response;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request)
+        .then(cached => cached || caches.match('./index.html'))
+      )
   );
 });
 
-// Background Sync (para registrar servicios offline)
+// ── BACKGROUND SYNC ───────────────────────────────────────────────────────
 self.addEventListener('sync', e => {
   if (e.tag === 'sync-services') {
-    console.log('[SW] Background sync ejecutado');
+    console.log('[SW] Background sync: sincronizando servicios...');
   }
 });
 
-// Push Notifications (base lista para usar)
+// ── PUSH NOTIFICATIONS ────────────────────────────────────────────────────
 self.addEventListener('push', e => {
-  const data = e.data ? e.data.json() : { title: 'Ray Mess Co', body: 'Tienes una actualización.' };
+  const data = e.data
+    ? e.data.json()
+    : { title: 'Ray Mess Co', body: 'Tienes una actualización.' };
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
