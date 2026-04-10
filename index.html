@@ -9,7 +9,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #000; }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
+    #dashboard { display: none; flex-direction: column; width: 100%; height: 100vh; }
+    #dashboard.visible { display: flex; }
     input::placeholder, textarea::placeholder { color: #000 !important; opacity: 1; }
     body.modal-open { height: 100vh; overflow: hidden; }
   </style>
@@ -23,7 +25,7 @@
   </div>
 
   <!-- DASHBOARD -->
-  <div id="dashboard" class="hidden flex-col w-full h-screen">
+  <div id="dashboard" class="w-full h-screen">
 
     <!-- HEADER -->
     <div class="sticky top-0 bg-black shadow-lg p-4 z-20 flex justify-between items-center border-b border-[#CF9524]">
@@ -105,10 +107,10 @@
   </div>
 
   <script>
-    // Splash
+    // Splash → Dashboard
     setTimeout(() => {
       document.getElementById('splash').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('dashboard').classList.add('visible');
     }, 3000);
 
     let services = JSON.parse(localStorage.getItem("services") || "[]");
@@ -188,11 +190,11 @@
             <p class="text-sm">Contacto receptor: ${escapeHtml(s.contacto || "-")}</p>
             <p class="text-sm">📞 <a href="tel:${encodeURIComponent(s.telefono || '')}" class="underline">${escapeHtml(s.telefono || '-')}</a></p>
             <p class="text-sm">📍 Recoger: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.recoger || '')}" target="_blank" class="underline">${escapeHtml(s.recoger || "-")}</a></p>
-<p class="text-sm">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar || '')}" target="_blank" class="underline">${escapeHtml(s.entregar || "-")}</a></p>
+            <p class="text-sm">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar || '')}" target="_blank" class="underline">${escapeHtml(s.entregar || "-")}</a></p>
             <p class="text-sm"><strong>Volumen:</strong> ${escapeHtml(s.volumen || "-")}</p>
             <p class="text-sm"><strong>Costo:</strong> $ ${formatNumber(s.costo || 0)}</p>
             <p class="text-sm"><strong>Observaciones:</strong> ${escapeHtml(s.observaciones || "-")}</p>
-            <p class="mt-2"><strong>Estado:</strong> 
+            <p class="mt-2"><strong>Estado:</strong>
               <span class="${s.estado === 'entregado' ? 'text-green-700' : 'text-red-700'}">
                 ${s.estado || "pendiente"}
               </span>
@@ -208,8 +210,6 @@
         list.appendChild(card);
       });
     }
-
-    // (El resto de tus funciones de Costos y Formulario se mantienen igual...)
 
     function renderCostos() {
       const tbody = document.getElementById("costos-body");
@@ -286,17 +286,16 @@
       } else { saveData(); }
     });
 
-    // LLAMADA INICIAL
     renderServices();
 
-    // REGISTRO DEL SERVICE WORKER CORRECTAMENTE CERRADO
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
           .then(reg => console.log('Service Worker registrado correctamente'))
           .catch(err => console.log('Error al registrar Service Worker', err));
       });
-    
+    }
   </script>
 </body>
 </html>
+
