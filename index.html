@@ -209,6 +209,8 @@
       });
     }
 
+    // (El resto de tus funciones de Costos y Formulario se mantienen igual...)
+
     function renderCostos() {
       const tbody = document.getElementById("costos-body");
       tbody.innerHTML = "";
@@ -284,15 +286,17 @@
       } else { saveData(); }
     });
 
+    // LLAMADA INICIAL
     renderServices();
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(reg => console.log('Service Worker registrado correctamente'))
-      .catch(err => console.log('Error al registrar Service Worker', err));
-  });
-}
-}
+
+    // REGISTRO DEL SERVICE WORKER CORRECTAMENTE CERRADO
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(reg => console.log('Service Worker registrado correctamente'))
+          .catch(err => console.log('Error al registrar Service Worker', err));
+      });
+    }
   </script>
 </body>
 </html>
