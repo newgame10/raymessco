@@ -1,7 +1,7 @@
 {
   "name": "Ray Mess Co",
-  "short_name": "RayMessCo",
-  "start_url": "index.html",
+  "short_name": "RayMess",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#CF9524",
@@ -9,6 +9,4 @@
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
-"description": "Aplicación de gestión logística para Ray Mess Co",
-"orientation": "portrait",
-"id": "com.raymess.co"}
+}
