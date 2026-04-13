@@ -28,17 +28,17 @@
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
-  "screenshots": [{
-    "src": "./screenshots/desde-el-celular.jpg",
+  "screenshots": [ {
+    "src": "./screenshots/desde el celular.jpeg",
     "sizes": "718x1599",
     "type": "image/jpeg",
     "form_factor": "narrow",
     "label": "Vista móvil de Ray Mess Co"
   },
   {
-    "src": "./screenshots/desde-el-pc.jpg",
+    "src": "./screenshots/desde el pc.png",
     "sizes": "1366x731",
-    "type": "image/jpeg",
+    "type": "image/png",
     "form_factor": "wide",
     "label": "Vista escritorio de Ray Mess Co"
   }]
