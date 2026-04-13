@@ -28,5 +28,18 @@
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
-  "screenshots": []
+  "screenshots": [{
+    "src": "./screenshots/movil-home.png",
+    "sizes": "390x844",
+    "type": "image/png",
+    "form_factor": "narrow",
+    "label": "Pantalla principal de Ray Mess Co"
+  },
+  {
+    "src": "./screenshots/escritorio-home.png",
+    "sizes": "1280x720",
+    "type": "image/png",
+    "form_factor": "wide",
+    "label": "Vista escritorio de Ray Mess Co"
+  }]
 }
