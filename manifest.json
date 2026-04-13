@@ -29,16 +29,16 @@
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "screenshots": [{
-    "src": "./screenshots/movil-home.png",
-    "sizes": "390x844",
-    "type": "image/png",
+    "src": "./screenshots/desde-el-celular.jpg",
+    "sizes": "718x1599",
+    "type": "image/jpeg",
     "form_factor": "narrow",
-    "label": "Pantalla principal de Ray Mess Co"
+    "label": "Vista móvil de Ray Mess Co"
   },
   {
-    "src": "./screenshots/escritorio-home.png",
-    "sizes": "1280x720",
-    "type": "image/png",
+    "src": "./screenshots/desde-el-pc.jpg",
+    "sizes": "1366x731",
+    "type": "image/jpeg",
     "form_factor": "wide",
     "label": "Vista escritorio de Ray Mess Co"
   }]
