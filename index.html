@@ -24,14 +24,12 @@
 </head>
 <body class="flex items-center justify-center">
 
-  <!-- SPLASH -->
   <div id="splash" class="flex flex-col items-center justify-center h-screen w-full bg-black">
     <img src="icon-192.png" alt="Logo Ray Mess Co" class="w-32 h-32 animate-pulse">
     <h1 class="text-3xl font-bold text-[#CF9524] mt-4">Ray Mess Co</h1>
     <p class="text-[#CF9524]/70 mt-2 text-sm">Cargando mensajería...</p>
   </div>
 
-  <!-- PANTALLA DE LOGIN -->
   <div id="login-screen" class="hidden fixed inset-0 bg-black flex flex-col items-center justify-center z-50 p-6">
     <img src="icon-192.png" alt="Logo" class="w-24 h-24 mb-4">
     <h1 class="text-3xl font-bold text-[#CF9524] mb-2">Ray Mess Co</h1>
@@ -65,10 +63,7 @@
     </div>
   </div>
 
-  <!-- DASHBOARD -->
   <div id="dashboard" class="w-full">
-
-    <!-- HEADER -->
     <div class="sticky top-0 bg-black shadow-lg p-4 z-20 flex justify-between items-center border-b border-[#CF9524]">
       <button onclick="toggleSidebar()" class="text-[#CF9524] text-2xl font-bold">☰</button>
       <h1 class="text-xl font-bold flex items-center gap-2 text-[#CF9524]">
@@ -79,7 +74,6 @@
       </button>
     </div>
 
-    <!-- SIDEBAR -->
     <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-[#111] text-[#CF9524] transform -translate-x-full transition-transform duration-300 z-40 shadow-xl">
       <div class="p-4 border-b border-[#CF9524] font-bold text-lg flex justify-between items-center">
         <span id="sidebar-user-label">Menú</span>
@@ -95,7 +89,6 @@
       </ul>
     </div>
 
-    <!-- CONTENIDO -->
     <div class="flex-1 overflow-auto p-4">
       <div class="mb-4 flex gap-2 text-[#CF9524] flex-wrap" id="filters">
         <button onclick="setFilter('all')" class="px-3 py-1 border border-[#CF9524] rounded bg-black">Todos</button>
@@ -125,7 +118,6 @@
     </div>
   </div>
 
-  <!-- MODAL -->
   <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-start justify-center overflow-y-auto z-50 p-4">
     <div class="bg-black border-2 border-[#CF9524] p-5 rounded-xl w-full max-w-md text-[#CF9524] my-8 shadow-2xl">
       <div class="flex justify-center">
@@ -154,11 +146,12 @@
           </select>
         </div>
 
+        <label class="text-xs font-bold -mb-2">Foto de evidencia (opcional):</label>
         <input type="file" id="f-foto" accept="image/*" class="p-2 bg-[#CF9524] text-black rounded">
         <textarea id="f-observaciones" placeholder="Observaciones (ej: frágil, horario especial)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded resize-y" style="max-height:120px;min-height:60px;"></textarea>
 
         <div class="flex gap-2 mt-3">
-          <button onclick="saveService()" class="flex-1 bg-green-600 text-white font-bold py-2 rounded shadow">✅ Guardar</button>
+          <button id="btn-save" onclick="saveService()" class="flex-1 bg-green-600 text-white font-bold py-2 rounded shadow">✅ Guardar</button>
           <button onclick="closeModal()" class="flex-1 bg-red-700 text-white font-bold py-2 rounded shadow">Cancelar</button>
         </div>
       </div>
@@ -168,6 +161,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    // NUEVO: Importar Firebase Storage
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCkjLdn1NYI5eApE4N5ylkGJnlYsmO5hq4",
@@ -180,6 +175,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const storage = getStorage(app); // Inicializar Storage
 
     let currentUser = null;
     let currentRole = null;
@@ -321,9 +317,13 @@
       document.getElementById('modal').classList.add('hidden');
       document.body.classList.remove('modal-open');
       editDocId = null;
+      document.getElementById('btn-save').innerText = "✅ Guardar";
+      document.getElementById('btn-save').disabled = false;
     };
 
+    // ACTUALIZADO: Lógica de Guardado con Firebase Storage
     window.saveService = async function() {
+      const btn = document.getElementById('btn-save');
       const empresa  = document.getElementById('f-empresa').value.trim();
       const cliente  = document.getElementById('f-cliente').value.trim();
       const contacto = document.getElementById('f-contacto').value.trim();
@@ -344,7 +344,20 @@
       const fotoFile = document.getElementById('f-foto').files[0];
       const existing = editDocId ? services.find(x => x.id === editDocId) : null;
 
-      const processSave = async (fotoBase64 = null) => {
+      try {
+        btn.innerText = "⏳ Subiendo...";
+        btn.disabled = true;
+
+        let fotoUrl = existing?.foto || null;
+
+        // Si hay una nueva foto, subirla a Storage
+        if (fotoFile) {
+          const fileName = `${Date.now()}_${fotoFile.name}`;
+          const storageRef = ref(storage, `evidencias/${fileName}`);
+          const uploadTask = await uploadBytes(storageRef, fotoFile);
+          fotoUrl = await getDownloadURL(uploadTask.ref);
+        }
+
         const data = {
           empresa, cliente, contacto, recoger, entregar,
           telefono: document.getElementById('f-telefono').value || '',
@@ -353,28 +366,20 @@
           observaciones: document.getElementById('f-observaciones').value || '',
           mensajero: currentRole === 'administrador' ? mensajero : (existing?.mensajero || currentUser),
           estado: existing?.estado || 'pendiente',
-          foto: fotoBase64 || existing?.foto || null,
+          foto: fotoUrl, // Aquí guardamos la URL de la nube, no el Base64
           fecha: existing?.fecha || Date.now()
         };
-        try {
-          if (editDocId) {
-            await updateDoc(doc(db, "services", editDocId), data);
-          } else {
-            await addDoc(collection(db, "services"), data);
-          }
-          closeModal();
-        } catch (err) {
-          alert('❌ Error al guardar: ' + err.message);
-        }
-      };
 
-      if (fotoFile) {
-        const reader = new FileReader();
-        reader.onloadend = () => processSave(reader.result);
-        reader.onerror = () => processSave(null);
-        reader.readAsDataURL(fotoFile);
-      } else {
-        processSave(null);
+        if (editDocId) {
+          await updateDoc(doc(db, "services", editDocId), data);
+        } else {
+          await addDoc(collection(db, "services"), data);
+        }
+        closeModal();
+      } catch (err) {
+        alert('❌ Error al guardar: ' + err.message);
+        btn.innerText = "✅ Guardar";
+        btn.disabled = false;
       }
     };
 
@@ -415,13 +420,18 @@
       lista.forEach(s => {
         const card = document.createElement('div');
         card.className = "bg-[#CF9524] text-black p-4 rounded-xl shadow-lg flex flex-col";
+        
+        // CORRECCIÓN: Enlaces de Google Maps arreglados
+        const urlRecoger = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.recoger)}`;
+        const urlEntregar = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar)}`;
+
         card.innerHTML = `
           <p class="font-bold text-lg">🏢 ${esc(s.empresa)}</p>
           <p class="text-sm mt-1">👤 Cliente: ${esc(s.cliente)}</p>
           <p class="text-sm">📞 Contacto: ${esc(s.contacto)}</p>
           <p class="text-sm">📱 Tel: ${s.telefono ? `<a href="tel:${s.telefono}" class="underline font-medium">${esc(s.telefono)}</a>` : '-'}</p>
-          <p class="text-sm">📍 Recoger: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.recoger||'')}" target="_blank" class="underline text-blue-900">${esc(s.recoger)}</a></p>
-          <p class="text-sm">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar||'')}" target="_blank" class="underline text-blue-900">${esc(s.entregar)}</a></p>
+          <p class="text-sm">📍 Recoger: <a href="${urlRecoger}" target="_blank" class="underline text-blue-900 font-bold">${esc(s.recoger)}</a></p>
+          <p class="text-sm">📍 Entregar: <a href="${urlEntregar}" target="_blank" class="underline text-blue-900 font-bold">${esc(s.entregar)}</a></p>
           <p class="text-sm">📦 Volumen: ${esc(s.volumen || '-')}</p>
           ${esAdmin ? `<p class="text-sm font-semibold">💰 Costo: $ ${fmt(s.costo || 0)}</p>` : ''}
           <p class="text-sm">🛵 Mensajero: <strong>${esc(s.mensajero || 'Sin asignar')}</strong></p>
@@ -432,7 +442,7 @@
               ${s.estado === 'entregado' ? '✅ ENTREGADO' : '⏳ PENDIENTE'}
             </span>
           </div>
-          ${s.foto ? `<div class="mt-3"><img src="${s.foto}" class="rounded-lg max-h-48 w-auto object-contain mx-auto border border-black/30"></div>` : ''}
+          ${s.foto ? `<div class="mt-3"><img src="${s.foto}" class="rounded-lg max-h-48 w-full object-cover mx-auto border border-black/30 shadow-inner" loading="lazy"></div>` : ''}
           <div class="flex gap-2 mt-4 flex-wrap">
             <button onclick="toggleEstado('${s.id}')" class="flex-1 bg-black text-[#CF9524] px-3 py-2 rounded text-sm font-bold">🔄 Cambiar estado</button>
             ${esAdmin ? `<button onclick="openModal('${s.id}')" class="flex-1 bg-blue-700 text-white px-3 py-2 rounded text-sm font-bold">✏️ Editar</button>` : ''}
