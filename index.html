@@ -14,84 +14,99 @@
   <style>
     body { background-color: #000; }
     .hidden { display: none !important; }
-    #dashboard { display: none; flex-direction: column; width: 100%; height: 100vh; }
+    #dashboard { display: none; flex-direction: column; width: 100%; min-height: 100vh; }
     #dashboard.visible { display: flex; }
     input::placeholder, textarea::placeholder { color: #000 !important; opacity: 1; }
     body.modal-open { height: 100vh; overflow: hidden; }
     .overflow-auto { -webkit-overflow-scrolling: touch; }
+    select { color: #000; background-color: #CF9524; }
   </style>
 </head>
 <body class="flex items-center justify-center">
 
-  <!-- SPLASH PERSONALIZADO -->
+  <!-- SPLASH -->
   <div id="splash" class="flex flex-col items-center justify-center h-screen w-full bg-black">
     <img src="icon-192.png" alt="Logo Ray Mess Co" class="w-32 h-32 animate-pulse">
     <h1 class="text-3xl font-bold text-[#CF9524] mt-4">Ray Mess Co</h1>
     <p class="text-[#CF9524]/70 mt-2 text-sm">Cargando mensajería...</p>
   </div>
 
-  <!-- PANTALLA DE SELECCIÓN DE ROL -->
-  <div id="role-screen" class="hidden fixed inset-0 bg-black flex flex-col items-center justify-center z-50 p-6">
+  <!-- PANTALLA DE LOGIN -->
+  <div id="login-screen" class="hidden fixed inset-0 bg-black flex flex-col items-center justify-center z-50 p-6">
     <img src="icon-192.png" alt="Logo" class="w-24 h-24 mb-4">
     <h1 class="text-3xl font-bold text-[#CF9524] mb-2">Ray Mess Co</h1>
-    <p class="text-[#CF9524]/70 mb-10 text-sm">¿Cómo deseas ingresar?</p>
+    <p class="text-[#CF9524]/70 mb-8 text-sm">Selecciona tu usuario para ingresar</p>
 
-    <div class="flex flex-col gap-4 w-full max-w-xs">
-      <button onclick="selectRole('mensajero')"
-        class="bg-[#CF9524] text-black font-bold text-lg py-4 rounded-xl shadow-lg flex items-center justify-center gap-3">
-        🛵 Mensajero
+    <div class="w-full max-w-xs flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <label class="text-[#CF9524] text-sm font-bold">¿Quién eres?</label>
+        <select id="user-select" class="p-3 rounded-xl font-bold text-black bg-[#CF9524] text-base">
+          <option value="">-- Selecciona --</option>
+          <option value="admin">👔 Administrador</option>
+          <option value="Ray">🛵 Ray</option>
+          <option value="Cris">🛵 Cris</option>
+          <option value="Topo">🛵 Topo</option>
+          <option value="Mateo">🛵 Mateo</option>
+          <option value="Sergio">🛵 Sergio</option>
+        </select>
+      </div>
+
+      <div id="admin-pass-section" class="hidden flex-col gap-2">
+        <label class="text-[#CF9524] text-sm font-bold">Contraseña</label>
+        <input id="admin-password" type="password" placeholder="Contraseña admin"
+          class="p-3 rounded-xl bg-[#CF9524] text-black placeholder-black font-bold text-base">
+      </div>
+
+      <button onclick="doLogin()"
+        class="bg-[#CF9524] text-black font-bold text-lg py-4 rounded-xl shadow-lg mt-2">
+        Ingresar ➜
       </button>
-      <button onclick="selectRole('administrador')"
-        class="border-2 border-[#CF9524] text-[#CF9524] font-bold text-lg py-4 rounded-xl shadow-lg flex items-center justify-center gap-3">
-        👔 Administrador
-      </button>
+      <p id="login-error" class="hidden text-red-400 text-center text-sm font-bold">❌ Contraseña incorrecta</p>
     </div>
   </div>
 
-  <!-- DASHBOARD PRINCIPAL -->
-  <div id="dashboard" class="w-full h-screen">
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="w-full">
 
-    <!-- HEADER FIJO -->
+    <!-- HEADER -->
     <div class="sticky top-0 bg-black shadow-lg p-4 z-20 flex justify-between items-center border-b border-[#CF9524]">
-      <button onclick="toggleSidebar()" class="text-[#CF9524] text-2xl font-bold" aria-label="Menú">☰</button>
-      <h1 class="text-2xl font-bold flex items-center gap-3 text-[#CF9524]">
+      <button onclick="toggleSidebar()" class="text-[#CF9524] text-2xl font-bold">☰</button>
+      <h1 class="text-xl font-bold flex items-center gap-2 text-[#CF9524]">
         <img src="icon-192.png" alt="Logo" class="w-8 h-8"> Ray Mess Co
       </h1>
-      <button onclick="openModal()" class="bg-[#CF9524] text-black px-4 py-2 rounded-lg font-bold shadow">
+      <button onclick="openModal()" class="bg-[#CF9524] text-black px-3 py-2 rounded-lg font-bold shadow text-sm">
         ➕ Registrar
       </button>
     </div>
 
-    <!-- SIDEBAR LATERAL -->
+    <!-- SIDEBAR -->
     <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-[#111] text-[#CF9524] transform -translate-x-full transition-transform duration-300 z-40 shadow-xl">
-      <div class="p-4 border-b border-[#CF9524] font-bold text-xl flex justify-between items-center">
-        <span id="sidebar-rol-label">Menú</span>
+      <div class="p-4 border-b border-[#CF9524] font-bold text-lg flex justify-between items-center">
+        <span id="sidebar-user-label">Menú</span>
         <button onclick="toggleSidebar()" class="text-xl">✕</button>
       </div>
       <ul class="flex flex-col p-4 gap-4">
         <li><button onclick="showSection('services')" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">📋 Ver servicios</button></li>
         <li><button onclick="openModal(); toggleSidebar();" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">➕ Registrar servicio</button></li>
-        <li id="menu-costos"><button onclick="showSection('costos')" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">💰 Costos por empresa</button></li>
+        <li id="menu-costos" class="hidden"><button onclick="showSection('costos')" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">💰 Costos por empresa</button></li>
         <li class="mt-4 border-t border-[#CF9524]/30 pt-4">
-          <button onclick="cerrarSesion()" class="w-full text-left py-2 px-3 hover:bg-red-900/30 rounded text-red-400">🚪 Cambiar rol</button>
+          <button onclick="cerrarSesion()" class="w-full text-left py-2 px-3 hover:bg-red-900/30 rounded text-red-400">🚪 Cambiar usuario</button>
         </li>
       </ul>
     </div>
 
-    <!-- CONTENIDO DINÁMICO -->
-    <div id="content" class="flex-1 overflow-auto p-4">
-
-      <!-- FILTROS -->
+    <!-- CONTENIDO -->
+    <div class="flex-1 overflow-auto p-4">
       <div class="mb-4 flex gap-2 text-[#CF9524] flex-wrap" id="filters">
         <button onclick="setFilter('all')" class="px-3 py-1 border border-[#CF9524] rounded bg-black">Todos</button>
         <button onclick="setFilter('pendiente')" class="px-3 py-1 border border-[#CF9524] rounded">Pendientes</button>
         <button onclick="setFilter('entregado')" class="px-3 py-1 border border-[#CF9524] rounded">Entregados</button>
       </div>
 
-      <!-- LISTA DE SERVICIOS -->
-      <div id="services-section" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      <div id="services-section" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="col-span-2 text-center text-[#CF9524] p-8">⏳ Cargando servicios...</div>
+      </div>
 
-      <!-- TABLA DE COSTOS POR EMPRESA -->
       <div id="costos-section" class="hidden">
         <h2 class="text-xl font-bold text-[#CF9524] mb-4">💰 Costos acumulados por empresa</h2>
         <div class="overflow-x-auto">
@@ -110,331 +125,375 @@
     </div>
   </div>
 
-  <!-- MODAL PARA REGISTRAR / EDITAR SERVICIO -->
+  <!-- MODAL -->
   <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-start justify-center overflow-y-auto z-50 p-4">
     <div class="bg-black border-2 border-[#CF9524] p-5 rounded-xl w-full max-w-md text-[#CF9524] my-8 shadow-2xl">
       <div class="flex justify-center">
         <img src="icon-192.png" alt="Logo" class="w-16 h-16 mb-2">
       </div>
       <h2 class="text-xl font-bold mb-4 text-center">📦 Registrar / Editar servicio</h2>
+      <div class="flex flex-col gap-3">
+        <input id="f-empresa" placeholder="Empresa que solicita *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
+        <input id="f-cliente" placeholder="Nombre del cliente *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
+        <input id="f-contacto" placeholder="Contacto receptor (nombre) *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
+        <input id="f-recoger" placeholder="Dirección de recogida *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
+        <input id="f-entregar" placeholder="Dirección de entrega *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
+        <input id="f-telefono" placeholder="Teléfono de contacto" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" inputmode="tel">
+        <input id="f-volumen" placeholder="Volumen (ej: 2 cajas / 50x40cm)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
+        <input type="number" id="f-costo" placeholder="Costo del servicio (COP)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" step="1000" min="0">
 
-      <form id="service-form" class="flex flex-col gap-3">
-        <input name="empresa" placeholder="Empresa que solicita *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="cliente" placeholder="Nombre del cliente *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="contacto" placeholder="Contacto receptor (nombre) *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="recoger" placeholder="Dirección de recogida *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="entregar" placeholder="Dirección de entrega *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" required>
-        <input name="telefono" placeholder="Teléfono de contacto" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" inputmode="tel">
-        <input name="volumen" placeholder="Volumen (ej: 2 cajas / 50x40cm)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
-        <input type="number" name="costo" placeholder="Costo del servicio (COP)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" step="1000" min="0">
-        <input type="file" name="foto" accept="image/*" class="p-2 bg-[#CF9524] text-black rounded">
-        <textarea name="observaciones" placeholder="Observaciones (ej: frágil, horario especial)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded resize-y" style="max-height: 120px; min-height: 60px;"></textarea>
-        
-        <div class="flex gap-2 mt-3">
-          <button type="submit" class="flex-1 bg-green-600 text-white font-bold py-2 rounded shadow">✅ Guardar</button>
-          <button type="button" onclick="closeModal()" class="flex-1 bg-red-700 text-white font-bold py-2 rounded shadow">Cancelar</button>
+        <div id="campo-mensajero">
+          <label class="text-sm font-bold mb-1 block">Asignar mensajero *</label>
+          <select id="f-mensajero" class="w-full p-2 bg-[#CF9524] text-black rounded font-bold">
+            <option value="">-- Sin asignar --</option>
+            <option value="Ray">🛵 Ray</option>
+            <option value="Cris">🛵 Cris</option>
+            <option value="Topo">🛵 Topo</option>
+            <option value="Mateo">🛵 Mateo</option>
+            <option value="Sergio">🛵 Sergio</option>
+          </select>
         </div>
-      </form>
+
+        <input type="file" id="f-foto" accept="image/*" class="p-2 bg-[#CF9524] text-black rounded">
+        <textarea id="f-observaciones" placeholder="Observaciones (ej: frágil, horario especial)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded resize-y" style="max-height:120px;min-height:60px;"></textarea>
+
+        <div class="flex gap-2 mt-3">
+          <button onclick="saveService()" class="flex-1 bg-green-600 text-white font-bold py-2 rounded shadow">✅ Guardar</button>
+          <button onclick="closeModal()" class="flex-1 bg-red-700 text-white font-bold py-2 rounded shadow">Cancelar</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script>
-    // -------- DATOS ----------
-    let services = JSON.parse(localStorage.getItem("services") || "[]");
-    let editIndex = null;
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkjLdn1NYI5eApE4N5ylkGJnlYsmO5hq4",
+      authDomain: "raymessco-ce1c0.firebaseapp.com",
+      projectId: "raymessco-ce1c0",
+      storageBucket: "raymessco-ce1c0.firebasestorage.app",
+      messagingSenderId: "829091900185",
+      appId: "1:829091900185:web:b1c61887780ff2639a5f388"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentRole = null;
+    let services = [];
+    let editDocId = null;
     let currentFilter = "all";
-    let currentRole = null; // 'mensajero' o 'administrador'
+    let unsubscribe = null;
+    const ADMIN_PASSWORD = "2512";
 
-    function saveServices() {
-      localStorage.setItem("services", JSON.stringify(services));
-    }
-
-    // -------- SPLASH -> ROL ----------
+    // SPLASH
     window.addEventListener('load', () => {
       setTimeout(() => {
         document.getElementById('splash').classList.add('hidden');
-        document.getElementById('role-screen').classList.remove('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
       }, 1800);
     });
 
-    // -------- SELECCIÓN DE ROL ----------
-    function selectRole(role) {
-      currentRole = role;
-      document.getElementById('role-screen').classList.add('hidden');
+    // Mostrar campo contraseña si elige admin
+    document.getElementById('user-select').addEventListener('change', e => {
+      const sec = document.getElementById('admin-pass-section');
+      if (e.target.value === 'admin') {
+        sec.classList.remove('hidden');
+        sec.classList.add('flex');
+      } else {
+        sec.classList.add('hidden');
+        sec.classList.remove('flex');
+        document.getElementById('admin-password').value = '';
+      }
+      document.getElementById('login-error').classList.add('hidden');
+    });
+
+    window.doLogin = function() {
+      const selected = document.getElementById('user-select').value;
+      if (!selected) { alert('Por favor selecciona un usuario'); return; }
+
+      if (selected === 'admin') {
+        const pass = document.getElementById('admin-password').value;
+        if (pass !== ADMIN_PASSWORD) {
+          document.getElementById('login-error').classList.remove('hidden');
+          return;
+        }
+        currentUser = 'admin';
+        currentRole = 'administrador';
+      } else {
+        currentUser = selected;
+        currentRole = 'mensajero';
+      }
+
+      document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('dashboard').classList.add('visible');
+      document.getElementById('sidebar-user-label').textContent =
+        currentRole === 'administrador' ? '👔 Administrador' : `🛵 ${currentUser}`;
 
-      // Etiqueta en sidebar
-      document.getElementById('sidebar-rol-label').textContent =
-        role === 'administrador' ? '👔 Administrador' : '🛵 Mensajero';
+      document.getElementById('menu-costos').classList.toggle('hidden', currentRole !== 'administrador');
+      document.getElementById('campo-mensajero').classList.toggle('hidden', currentRole !== 'administrador');
 
-      // Ocultar costos si es mensajero
-      document.getElementById('menu-costos').style.display =
-        role === 'administrador' ? '' : 'none';
+      startListening();
+    };
 
-      renderServices();
-    }
-
-    // -------- CERRAR SESIÓN / CAMBIAR ROL ----------
-    function cerrarSesion() {
+    window.cerrarSesion = function() {
+      if (unsubscribe) unsubscribe();
+      currentUser = null;
       currentRole = null;
+      services = [];
       document.getElementById('dashboard').classList.remove('visible');
-      toggleSidebar();
-      document.getElementById('role-screen').classList.remove('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('user-select').value = '';
+      document.getElementById('admin-pass-section').classList.add('hidden');
+      document.getElementById('admin-password').value = '';
+      const sidebar = document.getElementById('sidebar');
+      if (!sidebar.classList.contains('-translate-x-full')) toggleSidebar();
+    };
+
+    function startListening() {
+      const q = query(collection(db, "services"), orderBy("fecha", "desc"));
+      unsubscribe = onSnapshot(q, snapshot => {
+        services = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderServices();
+        if (!document.getElementById("costos-section").classList.contains("hidden")) renderCostos();
+      }, err => {
+        console.error("Firestore error:", err);
+        document.getElementById('services-section').innerHTML =
+          `<div class="col-span-2 text-center text-red-400 p-8">❌ Error al conectar con la base de datos.<br>Verifica tu conexión a internet.</div>`;
+      });
     }
 
-    // -------- SIDEBAR ----------
-    function toggleSidebar() {
+    window.toggleSidebar = function() {
       document.getElementById('sidebar').classList.toggle('-translate-x-full');
-    }
+    };
 
-    // -------- SECCIONES ----------
-    function showSection(section) {
-      document.getElementById("services-section").classList.add("hidden");
-      document.getElementById("filters").classList.add("hidden");
+    window.showSection = function(section) {
+      document.getElementById("services-section").classList.remove("hidden");
+      document.getElementById("filters").classList.remove("hidden");
       document.getElementById("costos-section").classList.add("hidden");
 
-      if (section === "services") {
-        document.getElementById("filters").classList.remove("hidden");
-        document.getElementById("services-section").classList.remove("hidden");
-        renderServices();
-      } else if (section === "costos") {
-        if (currentRole !== 'administrador') return;
+      if (section === "costos" && currentRole === 'administrador') {
+        document.getElementById("services-section").classList.add("hidden");
+        document.getElementById("filters").classList.add("hidden");
         document.getElementById("costos-section").classList.remove("hidden");
         renderCostos();
       }
       toggleSidebar();
-    }
+    };
 
-    function setFilter(filter) {
-      currentFilter = filter;
+    window.setFilter = function(f) {
+      currentFilter = f;
       renderServices();
-    }
+    };
 
-    // -------- MODAL ----------
-    function openModal(index = null) {
-      editIndex = index;
-      const modal = document.getElementById('modal');
-      const form = document.getElementById('service-form');
-      form.reset();
+    window.openModal = function(docId = null) {
+      editDocId = docId;
+      ['f-empresa','f-cliente','f-contacto','f-recoger','f-entregar',
+       'f-telefono','f-volumen','f-costo','f-observaciones'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('f-mensajero').value = '';
+      document.getElementById('f-foto').value = '';
 
-      if (index !== null && services[index]) {
-        const s = services[index];
-        form.empresa.value = s.empresa || "";
-        form.cliente.value = s.cliente || "";
-        form.contacto.value = s.contacto || "";
-        form.recoger.value = s.recoger || "";
-        form.entregar.value = s.entregar || "";
-        form.telefono.value = s.telefono || "";
-        form.volumen.value = s.volumen || "";
-        form.costo.value = s.costo || "";
-        form.observaciones.value = s.observaciones || "";
+      if (docId) {
+        const s = services.find(x => x.id === docId);
+        if (s) {
+          document.getElementById('f-empresa').value = s.empresa || '';
+          document.getElementById('f-cliente').value = s.cliente || '';
+          document.getElementById('f-contacto').value = s.contacto || '';
+          document.getElementById('f-recoger').value = s.recoger || '';
+          document.getElementById('f-entregar').value = s.entregar || '';
+          document.getElementById('f-telefono').value = s.telefono || '';
+          document.getElementById('f-volumen').value = s.volumen || '';
+          document.getElementById('f-costo').value = s.costo || '';
+          document.getElementById('f-mensajero').value = s.mensajero || '';
+          document.getElementById('f-observaciones').value = s.observaciones || '';
+        }
       }
-      modal.classList.remove('hidden');
+      document.getElementById('modal').classList.remove('hidden');
       document.body.classList.add('modal-open');
-    }
+    };
 
-    function closeModal() {
+    window.closeModal = function() {
       document.getElementById('modal').classList.add('hidden');
       document.body.classList.remove('modal-open');
-      editIndex = null;
-    }
+      editDocId = null;
+    };
 
-    // -------- UTILS ----------
-    function escapeHtml(text) {
-      if (!text && text !== 0) return '';
-      return String(text).replace(/&/g, "&amp;")
-                         .replace(/</g, "&lt;")
-                         .replace(/>/g, "&gt;")
-                         .replace(/"/g, "&quot;")
-                         .replace(/'/g, "&#039;");
-    }
+    window.saveService = async function() {
+      const empresa  = document.getElementById('f-empresa').value.trim();
+      const cliente  = document.getElementById('f-cliente').value.trim();
+      const contacto = document.getElementById('f-contacto').value.trim();
+      const recoger  = document.getElementById('f-recoger').value.trim();
+      const entregar = document.getElementById('f-entregar').value.trim();
 
-    function formatNumber(num) {
-      return new Intl.NumberFormat("es-CO").format(num);
-    }
-
-    // -------- RENDER SERVICIOS ----------
-    function renderServices() {
-      const container = document.getElementById('services-section');
-      if (!container) return;
-      container.innerHTML = "";
-
-      if (!services.length) {
-        container.innerHTML = `<div class="col-span-1 md:col-span-2 text-center text-[#CF9524] bg-black/40 p-8 rounded-2xl">📭 No hay servicios registrados. Presiona "Registrar" para comenzar.</div>`;
+      if (!empresa || !cliente || !contacto || !recoger || !entregar) {
+        alert('⚠️ Por favor completa todos los campos obligatorios (*)');
         return;
       }
 
-      let filtered = services.filter(s => {
-        if (currentFilter === "all") return true;
-        return s.estado === currentFilter;
-      });
+      const mensajero = document.getElementById('f-mensajero').value || '';
+      if (currentRole === 'administrador' && !mensajero) {
+        alert('⚠️ Por favor asigna un mensajero al servicio');
+        return;
+      }
 
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-1 md:col-span-2 text-center text-[#CF9524] p-6">⚠️ No hay servicios con estado "${currentFilter}".</div>`;
+      const fotoFile = document.getElementById('f-foto').files[0];
+      const existing = editDocId ? services.find(x => x.id === editDocId) : null;
+
+      const processSave = async (fotoBase64 = null) => {
+        const data = {
+          empresa, cliente, contacto, recoger, entregar,
+          telefono: document.getElementById('f-telefono').value || '',
+          volumen: document.getElementById('f-volumen').value || '',
+          costo: parseFloat(document.getElementById('f-costo').value) || 0,
+          observaciones: document.getElementById('f-observaciones').value || '',
+          mensajero: currentRole === 'administrador' ? mensajero : (existing?.mensajero || currentUser),
+          estado: existing?.estado || 'pendiente',
+          foto: fotoBase64 || existing?.foto || null,
+          fecha: existing?.fecha || Date.now()
+        };
+        try {
+          if (editDocId) {
+            await updateDoc(doc(db, "services", editDocId), data);
+          } else {
+            await addDoc(collection(db, "services"), data);
+          }
+          closeModal();
+        } catch (err) {
+          alert('❌ Error al guardar: ' + err.message);
+        }
+      };
+
+      if (fotoFile) {
+        const reader = new FileReader();
+        reader.onloadend = () => processSave(reader.result);
+        reader.onerror = () => processSave(null);
+        reader.readAsDataURL(fotoFile);
+      } else {
+        processSave(null);
+      }
+    };
+
+    window.toggleEstado = async function(docId) {
+      const s = services.find(x => x.id === docId);
+      if (!s) return;
+      await updateDoc(doc(db, "services", docId), {
+        estado: s.estado === 'entregado' ? 'pendiente' : 'entregado'
+      });
+    };
+
+    window.deleteService = async function(docId) {
+      if (currentRole !== 'administrador') return;
+      if (confirm('❌ ¿Eliminar este servicio permanentemente?')) {
+        await deleteDoc(doc(db, "services", docId));
+      }
+    };
+
+    function renderServices() {
+      const container = document.getElementById('services-section');
+      if (!container) return;
+      container.innerHTML = '';
+
+      let lista = currentRole === 'mensajero'
+        ? services.filter(s => s.mensajero === currentUser)
+        : services;
+
+      if (currentFilter !== 'all') lista = lista.filter(s => s.estado === currentFilter);
+
+      if (!lista.length) {
+        container.innerHTML = `<div class="col-span-2 text-center text-[#CF9524] bg-black/40 p-8 rounded-2xl">
+          📭 No hay servicios ${currentFilter !== 'all' ? `con estado "${currentFilter}"` : 'registrados'}.
+        </div>`;
         return;
       }
 
       const esAdmin = currentRole === 'administrador';
-
-      filtered.forEach((s) => {
-        const realIndex = services.findIndex(serv => serv === s);
+      lista.forEach(s => {
         const card = document.createElement('div');
-        card.className = "bg-[#CF9524] text-black p-4 rounded-xl shadow-lg flex flex-col transition hover:scale-[1.01] duration-200";
+        card.className = "bg-[#CF9524] text-black p-4 rounded-xl shadow-lg flex flex-col";
         card.innerHTML = `
-          <div>
-            <p class="font-bold text-lg">🏢 ${escapeHtml(s.empresa || "-")}</p>
-            <p class="text-sm mt-1">👤 Cliente: ${escapeHtml(s.cliente || "-")}</p>
-            <p class="text-sm">📞 Contacto receptor: ${escapeHtml(s.contacto || "-")}</p>
-            <p class="text-sm">📱 Teléfono: ${s.telefono ? `<a href="tel:${encodeURIComponent(s.telefono)}" class="underline font-medium">${escapeHtml(s.telefono)}</a>` : '-'}</p>
-            <p class="text-sm">📍 Recoger: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.recoger || '')}" target="_blank" class="underline text-blue-900">${escapeHtml(s.recoger || "-")}</a></p>
-            <p class="text-sm">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar || '')}" target="_blank" class="underline text-blue-900">${escapeHtml(s.entregar || "-")}</a></p>
-            <p class="text-sm">📦 Volumen: ${escapeHtml(s.volumen || "-")}</p>
-            ${esAdmin ? `<p class="text-sm font-semibold">💰 Costo: $ ${formatNumber(s.costo || 0)}</p>` : ''}
-            <p class="text-sm">📝 Observaciones: ${escapeHtml(s.observaciones || "Ninguna")}</p>
-            <div class="mt-2 flex items-center gap-2">
-              <span class="font-bold">Estado:</span>
-              <span class="px-2 py-0.5 rounded-full text-xs font-bold ${s.estado === 'entregado' ? 'bg-green-800 text-white' : 'bg-yellow-700 text-white'}">
-                ${s.estado === 'entregado' ? '✅ ENTREGADO' : '⏳ PENDIENTE'}
-              </span>
-            </div>
+          <p class="font-bold text-lg">🏢 ${esc(s.empresa)}</p>
+          <p class="text-sm mt-1">👤 Cliente: ${esc(s.cliente)}</p>
+          <p class="text-sm">📞 Contacto: ${esc(s.contacto)}</p>
+          <p class="text-sm">📱 Tel: ${s.telefono ? `<a href="tel:${s.telefono}" class="underline font-medium">${esc(s.telefono)}</a>` : '-'}</p>
+          <p class="text-sm">📍 Recoger: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.recoger||'')}" target="_blank" class="underline text-blue-900">${esc(s.recoger)}</a></p>
+          <p class="text-sm">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar||'')}" target="_blank" class="underline text-blue-900">${esc(s.entregar)}</a></p>
+          <p class="text-sm">📦 Volumen: ${esc(s.volumen || '-')}</p>
+          ${esAdmin ? `<p class="text-sm font-semibold">💰 Costo: $ ${fmt(s.costo || 0)}</p>` : ''}
+          <p class="text-sm">🛵 Mensajero: <strong>${esc(s.mensajero || 'Sin asignar')}</strong></p>
+          <p class="text-sm">📝 Obs: ${esc(s.observaciones || 'Ninguna')}</p>
+          <div class="mt-2 flex items-center gap-2">
+            <span class="font-bold">Estado:</span>
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold ${s.estado === 'entregado' ? 'bg-green-800 text-white' : 'bg-yellow-700 text-white'}">
+              ${s.estado === 'entregado' ? '✅ ENTREGADO' : '⏳ PENDIENTE'}
+            </span>
           </div>
-          ${ s.foto ? `<div class="mt-3"><img src="${s.foto}" alt="Foto del paquete" class="rounded-lg max-h-48 w-auto object-contain mx-auto border border-black/30"></div>` : "" }
+          ${s.foto ? `<div class="mt-3"><img src="${s.foto}" class="rounded-lg max-h-48 w-auto object-contain mx-auto border border-black/30"></div>` : ''}
           <div class="flex gap-2 mt-4 flex-wrap">
-            <button onclick="toggleEstado(${realIndex})" class="flex-1 bg-black text-[#CF9524] px-3 py-2 rounded text-sm font-bold">🔄 Cambiar estado</button>
-            ${esAdmin ? `<button onclick="openModal(${realIndex})" class="flex-1 bg-blue-700 text-white px-3 py-2 rounded text-sm font-bold">✏️ Editar</button>` : ''}
-            ${esAdmin ? `<button onclick="deleteService(${realIndex})" class="flex-1 bg-red-700 text-white px-3 py-2 rounded text-sm font-bold">🗑️ Eliminar</button>` : ''}
+            <button onclick="toggleEstado('${s.id}')" class="flex-1 bg-black text-[#CF9524] px-3 py-2 rounded text-sm font-bold">🔄 Cambiar estado</button>
+            ${esAdmin ? `<button onclick="openModal('${s.id}')" class="flex-1 bg-blue-700 text-white px-3 py-2 rounded text-sm font-bold">✏️ Editar</button>` : ''}
+            ${esAdmin ? `<button onclick="deleteService('${s.id}')" class="flex-1 bg-red-700 text-white px-3 py-2 rounded text-sm font-bold">🗑️ Eliminar</button>` : ''}
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // -------- COSTOS ----------
     function renderCostos() {
       if (currentRole !== 'administrador') return;
-      const tbody = document.getElementById("costos-body");
-      if (!tbody) return;
-      tbody.innerHTML = "";
+      const tbody = document.getElementById('costos-body');
+      tbody.innerHTML = '';
       const totals = {};
-
       services.forEach(s => {
-        const empresa = s.empresa ? s.empresa.trim() : "Empresa sin nombre";
-        const costo = parseFloat(s.costo) || 0;
-        if (!totals[empresa]) totals[empresa] = { cantidad: 0, total: 0 };
-        totals[empresa].cantidad += 1;
-        totals[empresa].total += costo;
+        const emp = (s.empresa || 'Sin nombre').trim();
+        if (!totals[emp]) totals[emp] = { cantidad: 0, total: 0 };
+        totals[emp].cantidad++;
+        totals[emp].total += parseFloat(s.costo) || 0;
       });
-
-      if (Object.keys(totals).length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-[#CF9524]">No hay datos de costos aún</td></tr>`;
+      if (!Object.keys(totals).length) {
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-[#CF9524]">No hay datos aún</td></tr>`;
         return;
       }
-
-      for (let empresa in totals) {
-        const tr = document.createElement("tr");
+      for (let emp in totals) {
+        const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="border border-[#CF9524] p-2 font-semibold">${escapeHtml(empresa)}</td>
-          <td class="border border-[#CF9524] p-2 text-center">${totals[empresa].cantidad}</td>
-          <td class="border border-[#CF9524] p-2">$ ${formatNumber(totals[empresa].total)}</td>
+          <td class="border border-[#CF9524] p-2 font-semibold">${esc(emp)}</td>
+          <td class="border border-[#CF9524] p-2 text-center">${totals[emp].cantidad}</td>
+          <td class="border border-[#CF9524] p-2">$ ${fmt(totals[emp].total)}</td>
         `;
         tbody.appendChild(tr);
       }
     }
 
-    // -------- TOGGLE ESTADO ----------
-    function toggleEstado(i) {
-      if (!services[i]) return;
-      services[i].estado = services[i].estado === "entregado" ? "pendiente" : "entregado";
-      saveServices();
-      renderServices();
-      if (!document.getElementById("costos-section").classList.contains("hidden")) renderCostos();
+    function esc(t) {
+      if (!t && t !== 0) return '';
+      return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+    function fmt(n) { return new Intl.NumberFormat('es-CO').format(n); }
 
-    function deleteService(i) {
-      if (currentRole !== 'administrador') return;
-      if (confirm("❌ ¿Eliminar este servicio permanentemente?")) {
-        services.splice(i, 1);
-        saveServices();
-        renderServices();
-        if (!document.getElementById("costos-section").classList.contains("hidden")) renderCostos();
-      }
-    }
-
-    // -------- FORMULARIO ----------
-    document.getElementById("service-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-
-      if (!data.empresa || !data.cliente || !data.contacto || !data.recoger || !data.entregar) {
-        alert("⚠️ Por favor completa todos los campos obligatorios (*)");
-        return;
-      }
-
-      const processSave = (fotoBase64 = null) => {
-        const newService = {
-          empresa: data.empresa.trim(),
-          cliente: data.cliente.trim(),
-          contacto: data.contacto.trim(),
-          recoger: data.recoger.trim(),
-          entregar: data.entregar.trim(),
-          telefono: data.telefono || "",
-          volumen: data.volumen || "",
-          costo: parseFloat(data.costo) || 0,
-          observaciones: data.observaciones || "",
-          foto: fotoBase64 || (editIndex !== null ? services[editIndex]?.foto : null),
-          estado: (editIndex !== null && services[editIndex]?.estado) ? services[editIndex].estado : "pendiente"
-        };
-
-        if (editIndex !== null) {
-          services[editIndex] = { ...services[editIndex], ...newService };
-          editIndex = null;
-        } else {
-          services.push(newService);
-        }
-        saveServices();
-        renderServices();
-        closeModal();
-        form.reset();
-        if (!document.getElementById("costos-section").classList.contains("hidden")) renderCostos();
-      };
-
-      const fotoFile = form.foto.files[0];
-      if (fotoFile) {
-        const reader = new FileReader();
-        reader.onloadend = () => processSave(reader.result);
-        reader.onerror = () => { alert("Error al leer la imagen, se guardará sin foto"); processSave(null); };
-        reader.readAsDataURL(fotoFile);
-      } else {
-        processSave(null);
-      }
-    });
-
-    // Cerrar modal al hacer clic fuera
-    document.getElementById('modal').addEventListener('click', (e) => {
+    document.getElementById('modal').addEventListener('click', e => {
       if (e.target === document.getElementById('modal')) closeModal();
     });
 
-    // Cerrar sidebar al hacer clic fuera
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', e => {
       const sidebar = document.getElementById('sidebar');
-      const menuBtn = e.target.closest('button')?.getAttribute('onclick')?.includes('toggleSidebar');
-      if (sidebar && !sidebar.contains(e.target) && !menuBtn && !sidebar.classList.contains('-translate-x-full')) {
+      const isMenuBtn = e.target.closest('button')?.getAttribute('onclick')?.includes('toggleSidebar');
+      if (sidebar && !sidebar.contains(e.target) && !isMenuBtn && !sidebar.classList.contains('-translate-x-full')) {
         toggleSidebar();
       }
     });
 
-    // Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
-          .then(reg => console.log('✅ SW registrado:', reg.scope))
-          .catch(err => console.error('❌ Error SW:', err));
+          .then(r => console.log('✅ SW:', r.scope))
+          .catch(e => console.error('❌ SW:', e));
       });
     }
-
-    renderServices();
   </script>
 </body>
 </html>
