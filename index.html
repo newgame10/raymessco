@@ -545,7 +545,7 @@
       }
     };
 
-    // ── WHATSAPP CON COMPARTIR NATIVO ────────────────────
+    // ── COPIAR FOTO AL PORTAPAPELES ───────────────────────
     window.enviarWhatsApp = async function(docId) {
       const s = services.find(x => x.id === docId);
       if (!s || !s.telefono) { alert('⚠️ Este servicio no tiene teléfono de contacto'); return; }
@@ -554,31 +554,29 @@
       const pagoTexto = s.metodoPago === 'efectivo' ? '💵 Efectivo' : '💳 Transferencia';
       const mensaje = `Hola ${s.cliente || ''}, le informamos que su pedido fue entregado ${tipoEntregaTexto}. Método de pago: ${pagoTexto}. Gracias por usar Ray Mess Co 🛵`;
 
-      // Si hay foto y el celular soporta compartir archivos
-      if (s.fotoEvidencia && navigator.canShare) {
+      // Si hay foto, copiarla al portapapeles
+      if (s.fotoEvidencia) {
         try {
-          // Convertir base64 a archivo real para poder compartirlo
           const res = await fetch(s.fotoEvidencia);
           const blob = await res.blob();
-          const file = new File([blob], 'evidencia.jpg', { type: 'image/jpeg' });
-
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              text: mensaje
-            });
-            return;
-          }
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          alert('📋 Foto copiada. Ahora abre WhatsApp y pégala en el chat del cliente.\n\nMensaje sugerido:\n\n' + mensaje);
+          return;
         } catch (err) {
-          // Si falla el share con archivo, cae al fallback de WhatsApp
-          console.warn('Share con archivo falló, usando fallback:', err);
+          // Si no soporta copiar imagen, copia solo el mensaje
+          console.warn('No se pudo copiar imagen:', err);
         }
       }
 
-      // Fallback: abrir WhatsApp solo con texto si no hay foto o no soporta share
-      const numero = s.telefono.toString().replace(/[\s\-().+]/g, '');
-      const numeroFinal = numero.startsWith('57') ? numero : `57${numero}`;
-      window.open(`https://wa.me/${numeroFinal}?text=${encodeURIComponent(mensaje)}`, '_blank');
+      // Sin foto: copiar solo el mensaje
+      try {
+        await navigator.clipboard.writeText(mensaje);
+        alert('📋 Mensaje copiado. Pégalo en WhatsApp del cliente.');
+      } catch {
+        alert('Mensaje para copiar:\n\n' + mensaje);
+      }
     };
     window.deleteService = async function(docId) {
       if (currentRole !== 'administrador') return;
@@ -659,7 +657,7 @@
           ${infoEntrega}
           <div class="flex gap-2 mt-4 flex-wrap">
             ${botonEstado(s)}
-            ${s.estado === 'entregado' && s.telefono ? `<button onclick="enviarWhatsApp('${s.id}')" class="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm font-bold">📲 WhatsApp</button>` : ''}
+            ${s.estado === 'entregado' && s.telefono ? `<button onclick="enviarWhatsApp('${s.id}')" class="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm font-bold">📋 Copiar foto</button>` : ''}
             ${esAdmin ? `<button onclick="openModal('${s.id}')" class="flex-1 bg-blue-700 text-white px-3 py-2 rounded text-sm font-bold">✏️ Editar</button>` : ''}
             ${esAdmin ? `<button onclick="deleteService('${s.id}')" class="flex-1 bg-red-700 text-white px-3 py-2 rounded text-sm font-bold">🗑️ Eliminar</button>` : ''}
           </div>
