@@ -41,12 +41,12 @@
         <label class="text-[#CF9524] text-sm font-bold">¿Quién eres?</label>
         <select id="user-select" class="p-3 rounded-xl font-bold text-black bg-[#CF9524] text-base">
           <option value="">-- Selecciona --</option>
-          <option value="admin">👔 Administrador</option>
-          <option value="Ray">🛵 Ray</option>
-          <option value="Cris">🛵 Cris</option>
-          <option value="Topo">🛵 Topo</option>
+          <option value="admin">👑 Administrador</option>
+          <option value="Ray">🚲 Ray</option>
+          <option value="Cris">🚲 Cris</option>
+          <option value="Topo">🚲 Topo</option>
           <option value="Mateo">🛵 Mateo</option>
-          <option value="Sergio">🛵 Sergio</option>
+          <option value="Sergio">🚗 Sergio</option>
         </select>
       </div>
       <div id="admin-pass-section" class="hidden flex-col gap-2">
@@ -88,7 +88,7 @@
         <li id="sidebar-registrar"><button onclick="openModal(); toggleSidebar();" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">➕ Registrar servicio</button></li>
         <li id="menu-costos" class="hidden"><button onclick="showSection('costos')" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">💰 Costos por servicio</button></li>
         <li class="mt-4 border-t border-[#CF9524]/30 pt-4">
-          <button onclick="cerrarSesion()" class="w-full text-left py-2 px-3 hover:bg-red-900/30 rounded text-red-400">🚪 Cambiar usuario</button>
+          <button onclick="cerrarSesion()" class="w-full text-left py-2 px-3 hover:bg-red-900/30 rounded text-red-400">👥 Cambiar usuario</button>
         </li>
       </ul>
     </div>
@@ -147,11 +147,11 @@
           <label class="text-sm font-bold mb-1 block">Asignar mensajero *</label>
           <select id="f-mensajero" class="w-full p-2 bg-[#CF9524] text-black rounded font-bold">
             <option value="">-- Sin asignar --</option>
-            <option value="Ray">🛵 Ray</option>
-            <option value="Cris">🛵 Cris</option>
-            <option value="Topo">🛵 Topo</option>
+            <option value="Ray">🚲 Ray</option>
+            <option value="Cris">🚲 Cris</option>
+            <option value="Topo">🚲 Topo</option>
             <option value="Mateo">🛵 Mateo</option>
-            <option value="Sergio">🛵 Sergio</option>
+            <option value="Sergio">🚗 Sergio</option>
           </select>
         </div>
 
@@ -614,7 +614,7 @@
           <p class="text-sm">📱 Tel: ${s.telefono ? `<a href="https://wa.me/57${s.telefono.toString().replace(/[\s\-().+]/g,'')}" target="_blank" class="underline font-medium">${esc(s.telefono)}</a>` : '-'}</p>
           ${esAdmin ? `<p class="text-sm font-semibold">💰 Valor: $ ${fmt(s.costo || 0)}</p>` : ''}
           <p class="text-sm">🛵 Mensajero: <strong>${esc(s.mensajero || 'Sin asignar')}</strong></p>
-          <p class="text-sm">📝 Obs: ${esc(s.observaciones || 'Ninguna')}</p>
+          <p class="text-sm">📝 Observaciones: ${esc(s.observaciones || 'Ninguna')}</p>
           <div class="mt-2 flex items-center gap-2">
             <span class="font-bold">Estado:</span>
             <span class="px-2 py-0.5 rounded-full text-xs font-bold ${estadoBadge(s.estado)}">
