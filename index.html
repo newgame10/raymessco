@@ -545,37 +545,40 @@
       }
     };
 
-    // ── WHATSAPP ─────────────────────────────────────────
-    // Abre WhatsApp con mensaje de entrega. Si hay foto de portería,
-    // primero descarga la imagen y luego abre WhatsApp con el mensaje.
-    window.enviarWhatsApp = function(docId) {
+    // ── WHATSAPP CON COMPARTIR NATIVO ────────────────────
+    window.enviarWhatsApp = async function(docId) {
       const s = services.find(x => x.id === docId);
       if (!s || !s.telefono) { alert('⚠️ Este servicio no tiene teléfono de contacto'); return; }
 
-      // Limpiar número: quitar espacios, guiones, paréntesis
-      const numero = s.telefono.toString().replace(/[\s\-().+]/g, '');
-      // Agregar código de Colombia si no tiene código de país
-      const numeroFinal = numero.startsWith('57') ? numero : `57${numero}`;
-
       const tipoEntregaTexto = s.tipoEntrega === 'porteria' ? 'en portería' : 'directamente al cliente';
       const pagoTexto = s.metodoPago === 'efectivo' ? '💵 Efectivo' : '💳 Transferencia';
-
       const mensaje = `Hola ${s.cliente || ''}, le informamos que su pedido fue entregado ${tipoEntregaTexto}. Método de pago: ${pagoTexto}. Gracias por usar Ray Mess Co 🛵`;
 
-      const url = `https://wa.me/${numeroFinal}?text=${encodeURIComponent(mensaje)}`;
+      // Si hay foto y el celular soporta compartir archivos
+      if (s.fotoEvidencia && navigator.canShare) {
+        try {
+          // Convertir base64 a archivo real para poder compartirlo
+          const res = await fetch(s.fotoEvidencia);
+          const blob = await res.blob();
+          const file = new File([blob], 'evidencia.jpg', { type: 'image/jpeg' });
 
-      // Si hay foto de evidencia, primero la descargamos para que el mensajero la adjunte manualmente
-      if (s.fotoEvidencia) {
-        // Crear enlace temporal para descargar la foto
-        const link = document.createElement('a');
-        link.href = s.fotoEvidencia;
-        link.download = `evidencia_${s.cliente || 'entrega'}.jpg`;
-        link.click();
-        setTimeout(() => { window.open(url, '_blank'); }, 800);
-        alert('📷 La foto se descargó en tu dispositivo. Adjúntala manualmente en WhatsApp.');
-      } else {
-        window.open(url, '_blank');
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              text: mensaje
+            });
+            return;
+          }
+        } catch (err) {
+          // Si falla el share con archivo, cae al fallback de WhatsApp
+          console.warn('Share con archivo falló, usando fallback:', err);
+        }
       }
+
+      // Fallback: abrir WhatsApp solo con texto si no hay foto o no soporta share
+      const numero = s.telefono.toString().replace(/[\s\-().+]/g, '');
+      const numeroFinal = numero.startsWith('57') ? numero : `57${numero}`;
+      window.open(`https://wa.me/${numeroFinal}?text=${encodeURIComponent(mensaje)}`, '_blank');
     };
     window.deleteService = async function(docId) {
       if (currentRole !== 'administrador') return;
