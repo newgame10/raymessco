@@ -545,39 +545,6 @@
       }
     };
 
-    // ── COPIAR FOTO AL PORTAPAPELES ───────────────────────
-    window.enviarWhatsApp = async function(docId) {
-      const s = services.find(x => x.id === docId);
-      if (!s || !s.telefono) { alert('⚠️ Este servicio no tiene teléfono de contacto'); return; }
-
-      const tipoEntregaTexto = s.tipoEntrega === 'porteria' ? 'en portería' : 'directamente al cliente';
-      const pagoTexto = s.metodoPago === 'efectivo' ? '💵 Efectivo' : '💳 Transferencia';
-      const mensaje = `Hola ${s.cliente || ''}, le informamos que su pedido fue entregado ${tipoEntregaTexto}. Método de pago: ${pagoTexto}. Gracias por usar Ray Mess Co 🛵`;
-
-      // Si hay foto, copiarla al portapapeles
-      if (s.fotoEvidencia) {
-        try {
-          const res = await fetch(s.fotoEvidencia);
-          const blob = await res.blob();
-          await navigator.clipboard.write([
-            new ClipboardItem({ 'image/png': blob })
-          ]);
-          alert('📋 Foto copiada. Ahora abre WhatsApp y pégala en el chat del cliente.\n\nMensaje sugerido:\n\n' + mensaje);
-          return;
-        } catch (err) {
-          // Si no soporta copiar imagen, copia solo el mensaje
-          console.warn('No se pudo copiar imagen:', err);
-        }
-      }
-
-      // Sin foto: copiar solo el mensaje
-      try {
-        await navigator.clipboard.writeText(mensaje);
-        alert('📋 Mensaje copiado. Pégalo en WhatsApp del cliente.');
-      } catch {
-        alert('Mensaje para copiar:\n\n' + mensaje);
-      }
-    };
     window.deleteService = async function(docId) {
       if (currentRole !== 'administrador') return;
       if (confirm('❌ ¿Eliminar este servicio permanentemente?')) {
@@ -657,7 +624,7 @@
           ${infoEntrega}
           <div class="flex gap-2 mt-4 flex-wrap">
             ${botonEstado(s)}
-            ${s.estado === 'entregado' && s.telefono ? `<button onclick="enviarWhatsApp('${s.id}')" class="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm font-bold">📋 Copiar foto</button>` : ''}
+            ${s.estado === 'entregado' && s.telefono ? `` : ''}
             ${esAdmin ? `<button onclick="openModal('${s.id}')" class="flex-1 bg-blue-700 text-white px-3 py-2 rounded text-sm font-bold">✏️ Editar</button>` : ''}
             ${esAdmin ? `<button onclick="deleteService('${s.id}')" class="flex-1 bg-red-700 text-white px-3 py-2 rounded text-sm font-bold">🗑️ Eliminar</button>` : ''}
           </div>
