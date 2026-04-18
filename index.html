@@ -545,7 +545,38 @@
       }
     };
 
-    // ── ELIMINAR ─────────────────────────────────────────
+    // ── WHATSAPP ─────────────────────────────────────────
+    // Abre WhatsApp con mensaje de entrega. Si hay foto de portería,
+    // primero descarga la imagen y luego abre WhatsApp con el mensaje.
+    window.enviarWhatsApp = function(docId) {
+      const s = services.find(x => x.id === docId);
+      if (!s || !s.telefono) { alert('⚠️ Este servicio no tiene teléfono de contacto'); return; }
+
+      // Limpiar número: quitar espacios, guiones, paréntesis
+      const numero = s.telefono.toString().replace(/[\s\-().+]/g, '');
+      // Agregar código de Colombia si no tiene código de país
+      const numeroFinal = numero.startsWith('57') ? numero : `57${numero}`;
+
+      const tipoEntregaTexto = s.tipoEntrega === 'porteria' ? 'en portería' : 'directamente al cliente';
+      const pagoTexto = s.metodoPago === 'efectivo' ? '💵 Efectivo' : '💳 Transferencia';
+
+      const mensaje = `Hola ${s.cliente || ''}, le informamos que su pedido fue entregado ${tipoEntregaTexto}. Método de pago: ${pagoTexto}. Gracias por usar Ray Mess Co 🛵`;
+
+      const url = `https://wa.me/${numeroFinal}?text=${encodeURIComponent(mensaje)}`;
+
+      // Si hay foto de evidencia, primero la descargamos para que el mensajero la adjunte manualmente
+      if (s.fotoEvidencia) {
+        // Crear enlace temporal para descargar la foto
+        const link = document.createElement('a');
+        link.href = s.fotoEvidencia;
+        link.download = `evidencia_${s.cliente || 'entrega'}.jpg`;
+        link.click();
+        setTimeout(() => { window.open(url, '_blank'); }, 800);
+        alert('📷 La foto se descargó en tu dispositivo. Adjúntala manualmente en WhatsApp.');
+      } else {
+        window.open(url, '_blank');
+      }
+    };
     window.deleteService = async function(docId) {
       if (currentRole !== 'administrador') return;
       if (confirm('❌ ¿Eliminar este servicio permanentemente?')) {
@@ -625,6 +656,7 @@
           ${infoEntrega}
           <div class="flex gap-2 mt-4 flex-wrap">
             ${botonEstado(s)}
+            ${s.estado === 'entregado' && s.telefono ? `<button onclick="enviarWhatsApp('${s.id}')" class="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm font-bold">📲 WhatsApp</button>` : ''}
             ${esAdmin ? `<button onclick="openModal('${s.id}')" class="flex-1 bg-blue-700 text-white px-3 py-2 rounded text-sm font-bold">✏️ Editar</button>` : ''}
             ${esAdmin ? `<button onclick="deleteService('${s.id}')" class="flex-1 bg-red-700 text-white px-3 py-2 rounded text-sm font-bold">🗑️ Eliminar</button>` : ''}
           </div>
