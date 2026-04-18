@@ -220,7 +220,6 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCkjLdn1NYI5eApE4N5ylkGJnlYsmO5hq4",
@@ -233,7 +232,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
     let currentUser = null;
     let currentRole = null;
@@ -502,16 +500,45 @@
         }
       };
 
+      // Comprimir imagen progresivamente hasta que quepa en Firestore (<700KB en base64)
+      function comprimirImagen(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const img = new Image();
+            img.onload = () => {
+              const intentar = (maxWidth, calidad) => {
+                const canvas = document.createElement('canvas');
+                let w = img.width, h = img.height;
+                if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                const result = canvas.toDataURL('image/jpeg', calidad);
+                // base64 ~1.37x tamaño real — apuntamos a <700KB
+                if (result.length > 700000 && calidad > 0.1) {
+                  return intentar(maxWidth, calidad - 0.1);
+                }
+                if (result.length > 700000 && maxWidth > 300) {
+                  return intentar(maxWidth - 100, 0.3);
+                }
+                resolve(result);
+              };
+              intentar(600, 0.5);
+            };
+            img.onerror = reject;
+            img.src = reader.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
       if (fotoFile) {
         try {
-          // Subir foto a Firebase Storage y guardar solo el URL en Firestore
-          const nombreArchivo = `evidencias/${entregaDocId}_${Date.now()}.jpg`;
-          const storageRef = ref(storage, nombreArchivo);
-          await uploadBytes(storageRef, fotoFile);
-          const url = await getDownloadURL(storageRef);
-          procesarGuardado(url);
+          const fotoComprimida = await comprimirImagen(fotoFile);
+          procesarGuardado(fotoComprimida);
         } catch (err) {
-          alert('❌ Error al subir la foto: ' + err.message);
+          alert('❌ Error al procesar la foto: ' + err.message);
         }
       } else {
         procesarGuardado(null);
