@@ -141,7 +141,7 @@
         <input id="f-entregar" placeholder="Dirección de entrega *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
         <input id="f-telefono" placeholder="Teléfono de contacto *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" inputmode="tel">
         <input type="number" id="f-costo" placeholder="Valor a cobrar (COP) *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" step="1000" min="0">
-        <textarea id="f-observaciones" placeholder="Observaciones (ej: frágil, horario especial)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded resize-y" style="max-height:120px;min-height:60px;"></textarea>
+        <textarea id="f-observaciones" placeholder="Observaciones (ejemplo: frágil, requiere refrigeración, entregar en horario especial)" class="p-2 bg-[#CF9524] text-black placeholder-black rounded resize-y" style="max-height:120px;min-height:60px;"></textarea>
 
         <div id="campo-mensajero">
           <label class="text-sm font-bold mb-1 block">Asignar mensajero *</label>
@@ -644,7 +644,7 @@
         card.innerHTML = `
           <p class="font-bold text-lg">👤 ${esc(s.cliente)}</p>
           <p class="text-sm mt-1">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar||'')}" target="_blank" class="underline text-blue-900">${esc(s.entregar)}</a></p>
-          <p class="text-sm">📱 Tel: ${s.telefono ? `<a href="tel:${s.telefono}" class="underline font-medium">${esc(s.telefono)}</a>` : '-'}</p>
+          <p class="text-sm">📱 Tel: ${s.telefono ? `<a href="https://wa.me/57${s.telefono.toString().replace(/[\s\-().+]/g,'')}" target="_blank" class="underline font-medium">${esc(s.telefono)}</a>` : '-'}</p>
           ${esAdmin ? `<p class="text-sm font-semibold">💰 Valor: $ ${fmt(s.costo || 0)}</p>` : ''}
           <p class="text-sm">🛵 Mensajero: <strong>${esc(s.mensajero || 'Sin asignar')}</strong></p>
           <p class="text-sm">📝 Obs: ${esc(s.observaciones || 'Ninguna')}</p>
