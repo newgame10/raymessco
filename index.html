@@ -138,7 +138,28 @@
       </div>
       <h2 class="text-xl font-bold mb-4 text-center">📦 Registrar / Editar servicio</h2>
       <div class="flex flex-col gap-3">
-        <!-- CAMBIO: formulario simplificado según spec -->
+
+        <!-- NUEVO: Panel pegar desde chat -->
+        <div id="panel-chat" class="hidden flex-col gap-2">
+          <label class="text-xs font-bold text-[#CF9524]/80 uppercase tracking-wider">Pega la respuesta del cliente aquí</label>
+          <textarea id="chat-input" placeholder="CLIENTE: Maria Paula&#10;DIRECCIÓN: Carrera 112f 88-16&#10;TELÉFONO: 3228508915&#10;OBSERVACIÓN: Frágil" class="p-2 bg-[#111] text-[#CF9524] border border-[#CF9524]/40 placeholder-[#CF9524]/30 rounded resize-y text-sm" style="min-height:110px;"></textarea>
+          <div class="flex gap-2">
+            <button onclick="extraerConIA()" id="btn-extraer" class="flex-1 bg-[#CF9524] text-black font-bold py-2 rounded text-sm">
+              ✨ Extraer datos
+            </button>
+            <button onclick="cerrarPanelChat()" class="bg-[#333] text-[#CF9524] font-bold py-2 px-3 rounded text-sm">
+              ✕
+            </button>
+          </div>
+          <div id="ia-loading" class="hidden text-center text-[#CF9524]/70 text-xs py-1">⏳ Extrayendo datos...</div>
+          <div id="ia-error" class="hidden text-red-400 text-xs py-1"></div>
+        </div>
+
+        <!-- Botón abrir panel chat -->
+        <button onclick="abrirPanelChat()" id="btn-pegar-chat" class="w-full border-2 border-dashed border-[#CF9524]/50 text-[#CF9524] font-bold py-2 rounded-lg text-sm hover:border-[#CF9524] transition-all">
+          📋 Pegar desde chat
+        </button>
+
         <input id="f-cliente" placeholder="Nombre del cliente *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
         <input id="f-entregar" placeholder="Dirección de entrega *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded">
         <input id="f-telefono" placeholder="Teléfono de contacto *" class="p-2 bg-[#CF9524] text-black placeholder-black rounded" inputmode="tel">
@@ -397,7 +418,82 @@
     window.closeModal = function() {
       document.getElementById('modal').classList.add('hidden');
       document.body.classList.remove('modal-open');
+      cerrarPanelChat();
       editDocId = null;
+    };
+
+    // ── PANEL CHAT + IA ──────────────────────────────────
+    window.abrirPanelChat = function() {
+      document.getElementById('panel-chat').classList.remove('hidden');
+      document.getElementById('panel-chat').classList.add('flex');
+      document.getElementById('btn-pegar-chat').classList.add('hidden');
+      document.getElementById('chat-input').focus();
+    };
+
+    window.cerrarPanelChat = function() {
+      const panel = document.getElementById('panel-chat');
+      if (!panel) return;
+      panel.classList.add('hidden');
+      panel.classList.remove('flex');
+      document.getElementById('btn-pegar-chat').classList.remove('hidden');
+      document.getElementById('chat-input').value = '';
+      document.getElementById('ia-error').classList.add('hidden');
+    };
+
+    window.extraerConIA = async function() {
+      const texto = document.getElementById('chat-input').value.trim();
+      if (!texto) { alert('⚠️ Pega el texto del cliente primero'); return; }
+
+      const btnExtraer = document.getElementById('btn-extraer');
+      const loading    = document.getElementById('ia-loading');
+      const errorDiv   = document.getElementById('ia-error');
+
+      btnExtraer.disabled = true;
+      btnExtraer.textContent = '⏳ Extrayendo...';
+      loading.classList.remove('hidden');
+      errorDiv.classList.add('hidden');
+
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 300,
+            messages: [{
+              role: 'user',
+              content: `Extrae los datos de este mensaje y responde SOLO con un JSON válido sin markdown ni explicaciones:
+{"cliente":"","direccion":"","telefono":"","observacion":""}
+
+Si un campo no aparece déjalo vacío.
+
+Mensaje:
+${texto}`
+            }]
+          })
+        });
+
+        const data = await response.json();
+        const rawText = data.content?.[0]?.text || '';
+        const jsonStr = rawText.replace(/```json|```/g, '').trim();
+        const parsed = JSON.parse(jsonStr);
+
+        if (parsed.cliente)     document.getElementById('f-cliente').value     = parsed.cliente;
+        if (parsed.direccion)   document.getElementById('f-entregar').value    = parsed.direccion;
+        if (parsed.telefono)    document.getElementById('f-telefono').value    = parsed.telefono;
+        if (parsed.observacion) document.getElementById('f-observaciones').value = parsed.observacion;
+
+        cerrarPanelChat();
+
+      } catch (err) {
+        errorDiv.textContent = '❌ Error al extraer. Verifica tu conexión e intenta de nuevo.';
+        errorDiv.classList.remove('hidden');
+        console.error('IA error:', err);
+      } finally {
+        btnExtraer.disabled = false;
+        btnExtraer.textContent = '✨ Extraer datos';
+        loading.classList.add('hidden');
+      }
     };
 
     window.saveService = async function() {
