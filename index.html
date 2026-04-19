@@ -45,8 +45,8 @@
           <option value="Ray">🚲 Ray</option>
           <option value="Cris">🚲 Cris</option>
           <option value="Topo">🚲 Topo</option>
-          <option value="Mateo">🛵 Mateo</option>
-          <option value="Sergio">🚗 Sergio</option>
+          <option value="Mateo">🏍️​ Mateo</option>
+          <option value="Sergio">🏎️ Sergio</option>
         </select>
       </div>
       <div id="admin-pass-section" class="hidden flex-col gap-2">
@@ -88,7 +88,7 @@
         <li id="sidebar-registrar"><button onclick="openModal(); toggleSidebar();" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">➕ Registrar servicio</button></li>
         <li id="menu-costos" class="hidden"><button onclick="showSection('costos')" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">💰 Costos por servicio</button></li>
         <li class="mt-4 border-t border-[#CF9524]/30 pt-4">
-          <button onclick="cerrarSesion()" class="w-full text-left py-2 px-3 hover:bg-red-900/30 rounded text-red-400">👥 Cambiar usuario</button>
+          <button onclick="cerrarSesion()" class="w-full text-left py-2 px-3 hover:bg-red-900/30 rounded text-red-400">🤝🏻​ Cambiar usuario</button>
         </li>
       </ul>
     </div>
@@ -104,12 +104,12 @@
       </div>
 
       <div id="services-section" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="col-span-2 text-center text-[#CF9524] p-8">⏳ Cargando servicios...</div>
+        <div class="col-span-2 text-center text-[#CF9524] p-8">⌚​ Cargando servicios...</div>
       </div>
 
       <!-- CAMBIO: tabla costos ampliada con efectivo/transferencia -->
       <div id="costos-section" class="hidden">
-        <h2 class="text-xl font-bold text-[#CF9524] mb-4">💰 Costos por servicio</h2>
+        <h2 class="text-xl font-bold text-[#CF9524] mb-4">💲​ Costos por servicio</h2>
         <div class="overflow-x-auto">
           <table class="w-full text-[#CF9524] border border-[#CF9524] text-sm">
             <thead class="bg-[#222]">
@@ -147,11 +147,11 @@
           <label class="text-sm font-bold mb-1 block">Asignar mensajero *</label>
           <select id="f-mensajero" class="w-full p-2 bg-[#CF9524] text-black rounded font-bold">
             <option value="">-- Sin asignar --</option>
-            <option value="Ray">🚲 Ray</option>
-            <option value="Cris">🚲 Cris</option>
-            <option value="Topo">🚲 Topo</option>
-            <option value="Mateo">🛵 Mateo</option>
-            <option value="Sergio">🚗 Sergio</option>
+            <option value="Ray">🚲​ Ray</option>
+            <option value="Cris">🚲​ Cris</option>
+            <option value="Topo">🚲​ Topo</option>
+            <option value="Mateo">🏍️ Mateo</option>
+            <option value="Sergio">🏎️ Sergio</option>
           </select>
         </div>
 
@@ -286,7 +286,7 @@
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('dashboard').classList.add('visible');
       document.getElementById('sidebar-user-label').textContent =
-        currentRole === 'administrador' ? '👑 Administrador' : `🚲 ${currentUser}`;
+        currentRole === 'administrador' ? '👑 Administrador' : `🚲​ ${currentUser}`;
 
       // CAMBIO: ocultar controles de admin al mensajero
       const esAdmin = currentRole === 'administrador';
@@ -566,9 +566,9 @@
     // CAMBIO: botón de cambio de estado con texto dinámico por estado
     function botonEstado(s) {
       if (currentRole !== 'mensajero') return '';
-      if (s.estado === 'pendiente') return `<button onclick="toggleEstado('${s.id}')" class="flex-1 bg-black text-[#CF9524] px-3 py-2 rounded text-sm font-bold">🚀 Salir en ruta</button>`;
-      if (s.estado === 'en_ruta')   return `<button onclick="toggleEstado('${s.id}')" class="flex-1 bg-green-700 text-white px-3 py-2 rounded text-sm font-bold">✅ Marcar entregado</button>`;
-      return ''; // entregado: sin botón
+      if (s.estado === 'pendiente') return `<button onclick="toggleEstado('${s.id}')" style="flex:1; background:#1e3a5f; color:#93c5fd; border:1px solid #2563eb44; padding:10px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">Salir en ruta</button>`;
+      if (s.estado === 'en_ruta')   return `<button onclick="toggleEstado('${s.id}')" style="flex:1; background:#14532d; color:#4ade80; border:1px solid #16a34a44; padding:10px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">Marcar entregado</button>`;
+      return '';
     }
 
     function renderServices() {
@@ -592,41 +592,81 @@
       const esAdmin = currentRole === 'administrador';
       lista.forEach(s => {
         const card = document.createElement('div');
-        card.className = "bg-[#CF9524] text-black p-4 rounded-xl shadow-lg flex flex-col";
+        card.className = "rounded-2xl overflow-hidden shadow-xl flex flex-col";
+        card.style.cssText = "background:#1a1a1a; border:1px solid #CF952440;";
 
-        // Info de entrega (solo si está entregado)
+        // Badge de estado
+        const estadoColor = s.estado === 'entregado' ? '#16a34a' : s.estado === 'en_ruta' ? '#2563eb' : '#b45309';
+        const estadoTxt   = s.estado === 'entregado' ? 'ENTREGADO' : s.estado === 'en_ruta' ? 'EN RUTA' : 'PENDIENTE';
+
+        // Info entrega
         let infoEntrega = '';
         if (s.estado === 'entregado') {
-          infoEntrega += s.metodoPago
-            ? `<p class="text-sm font-semibold">💳 Pago: ${s.metodoPago === 'efectivo' ? '💵 Efectivo' : '💳 Transferencia'}</p>`
-            : '';
-          infoEntrega += s.tipoEntrega
-            ? `<p class="text-sm">📦 Entrega: ${s.tipoEntrega === 'porteria' ? '🏢 En portería' : '🙋 Al cliente'}</p>`
-            : '';
+          if (s.metodoPago || s.tipoEntrega) {
+            infoEntrega += `<div style="border-top:1px solid #CF952430; margin-top:12px; padding-top:12px; display:flex; gap:8px; flex-wrap:wrap;">`;
+            if (s.metodoPago) {
+              const pagoColor = s.metodoPago === 'efectivo' ? '#15803d' : '#1d4ed8';
+              infoEntrega += `<span style="background:${pagoColor}22; color:${pagoColor === '#15803d' ? '#4ade80' : '#60a5fa'}; border:1px solid ${pagoColor}44; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.05em;">${s.metodoPago === 'efectivo' ? 'EFECTIVO' : 'TRANSFERENCIA'}</span>`;
+            }
+            if (s.tipoEntrega) {
+              infoEntrega += `<span style="background:#CF952420; color:#CF9524; border:1px solid #CF952440; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.05em;">${s.tipoEntrega === 'porteria' ? 'EN PORTERÍA' : 'AL CLIENTE'}</span>`;
+            }
+            infoEntrega += `</div>`;
+          }
           if (s.fotoEvidencia) {
-            infoEntrega += `<div class="mt-2"><p class="text-xs font-bold mb-1">📷 Evidencia portería:</p><img src="${s.fotoEvidencia}" class="rounded-lg max-h-40 w-auto object-contain border border-black/30"></div>`;
+            infoEntrega += `<div style="margin-top:12px;"><p style="color:#CF9524; font-size:11px; font-weight:700; letter-spacing:0.08em; margin-bottom:6px;">EVIDENCIA</p><img src="${s.fotoEvidencia}" style="width:100%; max-height:180px; object-fit:cover; border-radius:10px; border:1px solid #CF952440;"></div>`;
           }
         }
 
         card.innerHTML = `
-          <p class="font-bold text-lg">👤 ${esc(s.cliente)}</p>
-          <p class="text-sm mt-1">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar||'')}" target="_blank" class="underline text-blue-900">${esc(s.entregar)}</a></p>
-          <p class="text-sm">📱 Tel: ${s.telefono ? `<a href="https://wa.me/57${s.telefono.toString().replace(/[\s\-().+]/g,'')}" target="_blank" class="underline font-medium">${esc(s.telefono)}</a>` : '-'}</p>
-          ${esAdmin ? `<p class="text-sm font-semibold">💰 Valor: $ ${fmt(s.costo || 0)}</p>` : ''}
-          <p class="text-sm">🚲 Mensajero: <strong>${esc(s.mensajero || 'Sin asignar')}</strong></p>
-          <p class="text-sm">📝 Observaciones: ${esc(s.observaciones || 'Ninguna')}</p>
-          <div class="mt-2 flex items-center gap-2">
-            <span class="font-bold">Estado:</span>
-            <span class="px-2 py-0.5 rounded-full text-xs font-bold ${estadoBadge(s.estado)}">
-              ${estadoLabel(s.estado)}
-            </span>
+          <!-- Header con nombre y estado -->
+          <div style="background:#CF9524; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:17px; font-weight:800; color:#000; letter-spacing:-0.02em;">${esc(s.cliente || 'Sin nombre')}</span>
+            <span style="background:${estadoColor}; color:#fff; font-size:10px; font-weight:800; letter-spacing:0.1em; padding:4px 10px; border-radius:20px;">${estadoTxt}</span>
           </div>
-          ${infoEntrega}
-          <div class="flex gap-2 mt-4 flex-wrap">
-            ${botonEstado(s)}
-            ${s.estado === 'entregado' && s.telefono ? `` : ''}
-            ${esAdmin ? `<button onclick="openModal('${s.id}')" class="flex-1 bg-blue-700 text-white px-3 py-2 rounded text-sm font-bold">✏️ Editar</button>` : ''}
-            ${esAdmin ? `<button onclick="deleteService('${s.id}')" class="flex-1 bg-red-700 text-white px-3 py-2 rounded text-sm font-bold">🗑️ Eliminar</button>` : ''}
+
+          <!-- Cuerpo -->
+          <div style="padding:14px 16px; flex:1; display:flex; flex-direction:column; gap:8px;">
+
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div style="display:flex; gap:8px; align-items:flex-start;">
+                <span style="color:#CF9524; font-size:11px; font-weight:700; letter-spacing:0.06em; min-width:70px; padding-top:1px;">DIRECCIÓN</span>
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar||'')}" target="_blank" style="color:#93c5fd; font-size:13px; font-weight:500; text-decoration:underline; line-height:1.4;">${esc(s.entregar || '-')}</a>
+              </div>
+
+              <div style="display:flex; gap:8px; align-items:center;">
+                <span style="color:#CF9524; font-size:11px; font-weight:700; letter-spacing:0.06em; min-width:70px;">TELÉFONO</span>
+                ${s.telefono
+                  ? `<a href="https://wa.me/57${s.telefono.toString().replace(/[\s\-().+]/g,'')}" target="_blank" style="color:#4ade80; font-size:13px; font-weight:600; text-decoration:none;">${esc(s.telefono)}</a>`
+                  : `<span style="color:#666; font-size:13px;">—</span>`}
+              </div>
+
+              <div style="display:flex; gap:8px; align-items:center;">
+                <span style="color:#CF9524; font-size:11px; font-weight:700; letter-spacing:0.06em; min-width:70px;">MENSAJERO</span>
+                <span style="color:#e5e5e5; font-size:13px; font-weight:600;">${esc(s.mensajero || 'Sin asignar')}</span>
+              </div>
+
+              ${esAdmin ? `
+              <div style="display:flex; gap:8px; align-items:center;">
+                <span style="color:#CF9524; font-size:11px; font-weight:700; letter-spacing:0.06em; min-width:70px;">VALOR</span>
+                <span style="color:#fbbf24; font-size:14px; font-weight:800;">$ ${fmt(s.costo || 0)}</span>
+              </div>` : ''}
+
+              ${s.observaciones ? `
+              <div style="display:flex; gap:8px; align-items:flex-start;">
+                <span style="color:#CF9524; font-size:11px; font-weight:700; letter-spacing:0.06em; min-width:70px; padding-top:1px;">NOTAS</span>
+                <span style="color:#a3a3a3; font-size:12px; line-height:1.4;">${esc(s.observaciones)}</span>
+              </div>` : ''}
+            </div>
+
+            ${infoEntrega}
+
+            <!-- Botones -->
+            <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+              ${botonEstado(s)}
+              ${esAdmin ? `<button onclick="openModal('${s.id}')" style="flex:1; background:#1e3a5f; color:#93c5fd; border:1px solid #2563eb44; padding:10px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">Editar</button>` : ''}
+              ${esAdmin ? `<button onclick="deleteService('${s.id}')" style="flex:1; background:#3f1515; color:#f87171; border:1px solid #dc262644; padding:10px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">Eliminar</button>` : ''}
+            </div>
           </div>
         `;
         container.appendChild(card);
