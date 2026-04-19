@@ -45,7 +45,7 @@
           <option value="Ray">🚲 Ray</option>
           <option value="Cris">🚲 Cris</option>
           <option value="Topo">🚲 Topo</option>
-          <option value="Mateo">🏍️​ Mateo</option>
+          <option value="Mateo">🏍️ Mateo</option>
           <option value="Sergio">🏎️ Sergio</option>
         </select>
       </div>
@@ -65,14 +65,16 @@
   <div id="dashboard" class="w-full">
 
     <!-- HEADER -->
-    <div class="sticky top-0 bg-black shadow-lg p-4 z-20 flex justify-between items-center border-b border-[#CF9524]">
-      <button onclick="toggleSidebar()" class="text-[#CF9524] text-2xl font-bold">☰</button>
-      <h1 class="text-xl font-bold flex items-center gap-2 text-[#CF9524]">
-        <img src="icon-192.png" alt="Logo" class="w-8 h-8"> Ray Mess Co
-      </h1>
-      <!-- CAMBIO: botón Registrar solo visible para admin -->
+    <div id="main-header" class="sticky top-0 shadow-lg p-4 z-20 flex justify-between items-center border-b border-[#CF9524]" style="background:#000;">
+      <button onclick="toggleSidebar()" id="header-menu-btn" class="text-2xl font-bold text-[#CF9524]">☰</button>
+      <div class="flex flex-col items-center">
+        <h1 class="text-lg font-bold flex items-center gap-2 text-[#CF9524]">
+          <img src="icon-192.png" alt="Logo" class="w-7 h-7"> Ray Mess Co
+        </h1>
+        <span id="header-rol-badge" class="text-xs font-bold px-3 py-0.5 rounded-full mt-1" style="background:#CF952420; color:#CF9524; border:1px solid #CF952440;"></span>
+      </div>
       <button id="btn-registrar" onclick="openModal()" class="bg-[#CF9524] text-black px-3 py-2 rounded-lg font-bold shadow text-sm">
-        ➕ Registrar
+        + Registrar
       </button>
     </div>
 
@@ -88,7 +90,7 @@
         <li id="sidebar-registrar"><button onclick="openModal(); toggleSidebar();" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">➕ Registrar servicio</button></li>
         <li id="menu-costos" class="hidden"><button onclick="showSection('costos')" class="w-full text-left py-2 px-3 hover:bg-[#CF9524]/20 rounded">💰 Costos por servicio</button></li>
         <li class="mt-4 border-t border-[#CF9524]/30 pt-4">
-          <button onclick="cerrarSesion()" class="w-full text-left py-2 px-3 hover:bg-red-900/30 rounded text-red-400">🤝🏻​ Cambiar usuario</button>
+          <button onclick="cerrarSesion()" class="w-full text-left py-2 px-3 hover:bg-red-900/30 rounded text-red-400">🚪 Cambiar usuario</button>
         </li>
       </ul>
     </div>
@@ -104,12 +106,12 @@
       </div>
 
       <div id="services-section" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="col-span-2 text-center text-[#CF9524] p-8">⌚​ Cargando servicios...</div>
+        <div class="col-span-2 text-center text-[#CF9524] p-8">⏳ Cargando servicios...</div>
       </div>
 
       <!-- CAMBIO: tabla costos ampliada con efectivo/transferencia -->
       <div id="costos-section" class="hidden">
-        <h2 class="text-xl font-bold text-[#CF9524] mb-4">💲​ Costos por servicio</h2>
+        <h2 class="text-xl font-bold text-[#CF9524] mb-4">💰 Costos por servicio</h2>
         <div class="overflow-x-auto">
           <table class="w-full text-[#CF9524] border border-[#CF9524] text-sm">
             <thead class="bg-[#222]">
@@ -147,9 +149,9 @@
           <label class="text-sm font-bold mb-1 block">Asignar mensajero *</label>
           <select id="f-mensajero" class="w-full p-2 bg-[#CF9524] text-black rounded font-bold">
             <option value="">-- Sin asignar --</option>
-            <option value="Ray">🚲​ Ray</option>
-            <option value="Cris">🚲​ Cris</option>
-            <option value="Topo">🚲​ Topo</option>
+            <option value="Ray">🚲 Ray</option>
+            <option value="Cris">🚲 Cris</option>
+            <option value="Topo">🚲 Topo</option>
             <option value="Mateo">🏍️ Mateo</option>
             <option value="Sergio">🏎️ Sergio</option>
           </select>
@@ -285,8 +287,32 @@
 
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('dashboard').classList.add('visible');
-      document.getElementById('sidebar-user-label').textContent =
-        currentRole === 'administrador' ? '👑 Administrador' : `🚲​ ${currentUser}`;
+
+      // Iconos por usuario
+      const iconos = { admin: '👑', Ray: '🚲', Cris: '🚲', Topo: '🚲', Mateo: '🏍️', Sergio: '🏎️' };
+      const icono = iconos[currentUser] || '🚲';
+      const labelUsuario = currentRole === 'administrador' ? '👑 Administrador' : `${icono} ${currentUser}`;
+      document.getElementById('sidebar-user-label').textContent = labelUsuario;
+
+      // Badge de rol en header
+      const badge = document.getElementById('header-rol-badge');
+      badge.textContent = currentRole === 'administrador' ? '👑 Administrador' : `${icono} ${currentUser}`;
+
+      // Color del header según rol
+      const header = document.getElementById('main-header');
+      if (currentRole === 'administrador') {
+        header.style.background = '#1a1000';
+        header.style.borderBottomColor = '#CF9524';
+        badge.style.background = '#CF952430';
+        badge.style.color = '#CF9524';
+        badge.style.border = '1px solid #CF952460';
+      } else {
+        header.style.background = '#000d1a';
+        header.style.borderBottomColor = '#3b82f6';
+        badge.style.background = '#3b82f620';
+        badge.style.color = '#93c5fd';
+        badge.style.border = '1px solid #3b82f640';
+      }
 
       // CAMBIO: ocultar controles de admin al mensajero
       const esAdmin = currentRole === 'administrador';
@@ -655,7 +681,7 @@
               ${s.observaciones ? `
               <div style="display:flex; gap:8px; align-items:flex-start;">
                 <span style="color:#CF9524; font-size:11px; font-weight:700; letter-spacing:0.06em; min-width:70px; padding-top:1px;">NOTAS</span>
-                <span style="color:#a3a3a3; font-size:12px; line-height:1.4;">${esc(s.observaciones)}</span>
+                <span style="color:#e5e5e5; font-size:13px; line-height:1.4;">${esc(s.observaciones)}</span>
               </div>` : ''}
             </div>
 
