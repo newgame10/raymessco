@@ -286,7 +286,7 @@
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('dashboard').classList.add('visible');
       document.getElementById('sidebar-user-label').textContent =
-        currentRole === 'administrador' ? '👔 Administrador' : `🛵 ${currentUser}`;
+        currentRole === 'administrador' ? '👑 Administrador' : `🚲 ${currentUser}`;
 
       // CAMBIO: ocultar controles de admin al mensajero
       const esAdmin = currentRole === 'administrador';
@@ -613,7 +613,7 @@
           <p class="text-sm mt-1">📍 Entregar: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.entregar||'')}" target="_blank" class="underline text-blue-900">${esc(s.entregar)}</a></p>
           <p class="text-sm">📱 Tel: ${s.telefono ? `<a href="https://wa.me/57${s.telefono.toString().replace(/[\s\-().+]/g,'')}" target="_blank" class="underline font-medium">${esc(s.telefono)}</a>` : '-'}</p>
           ${esAdmin ? `<p class="text-sm font-semibold">💰 Valor: $ ${fmt(s.costo || 0)}</p>` : ''}
-          <p class="text-sm">🛵 Mensajero: <strong>${esc(s.mensajero || 'Sin asignar')}</strong></p>
+          <p class="text-sm">🚲 Mensajero: <strong>${esc(s.mensajero || 'Sin asignar')}</strong></p>
           <p class="text-sm">📝 Observaciones: ${esc(s.observaciones || 'Ninguna')}</p>
           <div class="mt-2 flex items-center gap-2">
             <span class="font-bold">Estado:</span>
